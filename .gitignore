@@ -32,6 +32,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# wrangler's local-dev secrets file — same rule as .env, per Cloudflare's docs
+.dev.vars*
 
 # vercel
 .vercel
@@ -43,3 +45,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# cloudflare / opennext build output
+/.open-next/
+
+# NOTE: cloudflare-env.d.ts is generated (`npm run cf-typegen`) but IS committed.
+# It contains only binding type declarations, never secrets, and `tsc` fails
+# without it on a fresh clone.
+
+# wrangler local state (caches, local D1 copies)
+/.wrangler/

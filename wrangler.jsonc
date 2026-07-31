@@ -1,0 +1,33 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sweetdevil",
+  "main": ".open-next/worker.js",
+
+  // nodejs_compat + a date >= 2024-09-23 are both hard requirements of
+  // @opennextjs/cloudflare. Lowering either breaks the Next.js runtime.
+  "compatibility_date": "2026-07-30",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+
+  // Order records. Created in APAC so writes are close to customers in India.
+  // The schema lives in migrations/ — apply with:
+  //   npx wrangler d1 migrations apply sweetdevil-orders --remote
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "sweetdevil-orders",
+      "database_id": "f9f50459-eac3-4f6a-9912-6eb5b0857cec",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  // Free tier includes logs; leave on so a failing checkout is diagnosable
+  // once payments are live.
+  "observability": {
+    "enabled": true
+  }
+}
