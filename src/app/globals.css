@@ -1,131 +1,537 @@
 @import "tailwindcss";
 
-@theme inline {
-  /* palette */
-  --color-bg: #0a0a0b;
-  --color-bg-soft: #111113;
-  --color-ink: #f4f1ea;
-  --color-ink-dim: #9a968d;
-  --color-devil: #ff2e2e;
-  --color-devil-deep: #b41318;
-  --color-ember: #ff7a18;
-  --color-line: rgba(244, 241, 234, 0.12);
+/* ═══════════════════════════════════════════════════════════════════════════
+   Sweet Devil — cursed firmware
+   Palette derived from the brand's own assets: #8B0000 (live store red),
+   #FF5757 (mascot body), and the orange core of fire.mp4. Neutrals are all
+   tinted toward hue 28 so the chassis and the fire read as one object.
 
-  /* type */
-  --font-display: var(--font-anton);
-  --font-sans: var(--font-space);
-  --font-mono: var(--font-geist-mono);
+   Everything below lives in @layer base / @layer components on purpose.
+   Tailwind v4 emits its utilities inside a cascade layer, and UNLAYERED rules
+   beat layered ones no matter the specificity — so an unlayered `.chassis`
+   would silently defeat every `bg-*` utility applied alongside it.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@theme {
+  /* surfaces — never pure black */
+  --color-void: oklch(0.13 0.014 28);
+  --color-void-deep: oklch(0.09 0.011 28);
+  --color-panel: oklch(0.18 0.021 28);
+  --color-panel-hi: oklch(0.23 0.026 28);
+
+  /* strokes */
+  --color-line: oklch(0.33 0.038 28);
+  --color-line-hot: oklch(0.46 0.115 28);
+
+  /* type — warm off-white, never #fff */
+  --color-bone: oklch(0.95 0.009 65);
+  --color-bone-dim: oklch(0.72 0.016 45);
+  /* Raised from 0.55 so the faintest metadata still clears 4.5:1 where the red
+     page wash is hottest. Still a clear third step below bone / bone-dim. */
+  --color-bone-faint: oklch(0.63 0.018 40);
+
+  /* heat — the 10% */
+  --color-blood: oklch(0.42 0.165 28);
+  /* Lightness is load-bearing: ember is used for small labels that now sit on
+     the red page wash, and a darker red would drop them under 4.5:1. */
+  --color-ember: oklch(0.66 0.215 28);
+  --color-flare: oklch(0.76 0.165 58);
+
+  /* NOTE: do not add a named `--spacing-sm/md/lg/...` scale here. Those keys
+     shadow Tailwind's named size namespace, which silently turns `max-w-sm`
+     into 1rem instead of 24rem. Tailwind's own numeric scale is already 4pt
+     (`p-3` = 12px, `p-4` = 16px), so use that. */
+}
+
+@theme inline {
+  --font-display: var(--font-archivo-black);
+  --font-sans: var(--font-archivo);
+  --font-mono: var(--font-azeret);
 }
 
 :root {
-  --background: var(--color-bg);
-  --foreground: var(--color-ink);
+  /* chassis geometry — one token drives every chamfer on the site */
+  --cut: 14px;
+  --stroke: 1px;
+
+  /* fluid display scale, ~1.32 ratio */
+  --step-0: clamp(0.94rem, 0.9rem + 0.2vw, 1.02rem);
+  --step-1: clamp(1.24rem, 1.1rem + 0.7vw, 1.6rem);
+  --step-2: clamp(1.64rem, 1.35rem + 1.45vw, 2.6rem);
+  --step-3: clamp(2.16rem, 1.6rem + 2.8vw, 4.2rem);
+  --step-4: clamp(3.6rem, 1.9rem + 7.6vw, 8.5rem);
+
+  color-scheme: dark;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-html {
-  background: var(--color-bg);
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-
-body {
-  background: var(--color-bg);
-  color: var(--color-ink);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
-  overflow-x: hidden;
-}
-
-::selection {
-  background: var(--color-devil);
-  color: #ffffff;
-}
-
-/* thin scrollbar tuned to the dark theme */
-::-webkit-scrollbar {
-  width: 9px;
-}
-::-webkit-scrollbar-track {
-  background: var(--color-bg);
-}
-::-webkit-scrollbar-thumb {
-  background: #26262a;
-  border-radius: 999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-devil-deep);
-}
-
-/* Lenis */
-html.lenis,
-html.lenis body {
-  height: auto;
-}
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
-
-/* ---- helpers ---- */
-.display {
-  font-family: var(--font-display), Impact, sans-serif;
-  text-transform: uppercase;
-  line-height: 0.86;
-  letter-spacing: -0.01em;
-}
-
-.eyebrow {
-  font-family: var(--font-mono), monospace;
-  text-transform: uppercase;
-  letter-spacing: 0.32em;
-  font-size: 0.72rem;
-}
-
-/* film-grain overlay */
-.grain::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  pointer-events: none;
-  opacity: 0.05;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* marquee */
-@keyframes marquee {
-  from {
-    transform: translateX(0);
+@layer base {
+  * {
+    box-sizing: border-box;
+    min-width: 0;
   }
+
+  html {
+    background: var(--color-void);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* in-page anchors must clear the fixed chassis bezel, or the heading they
+       jump to lands underneath the bar and reads as washed out */
+    scroll-padding-top: 6.5rem;
+  }
+
+  body {
+    /* Deliberately transparent. `.page-heat` is a z-index:-1 child, and a
+       negative-z element paints *below* its parent's background box — an
+       opaque body would hide the gradient entirely. `html` keeps the solid
+       void underneath as the fallback. */
+    background: transparent;
+    color: var(--color-bone);
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    /* light type on dark reads lighter — extra leading earns it back */
+    line-height: 1.65;
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: var(--color-ember);
+    color: oklch(0.14 0.02 28);
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-void-deep);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-blood);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-flare);
+    outline-offset: 2px;
+  }
+
+  /* Lenis smooth scroll */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+}
+
+@layer components {
+  /* ── Typography ────────────────────────────────────────────────────────── */
+
+  .display {
+    font-family: var(--font-display), Impact, ui-sans-serif, sans-serif;
+    font-weight: 400;
+    text-transform: uppercase;
+    line-height: 0.86;
+    letter-spacing: -0.02em;
+  }
+
+  /* machine-printed text: SKUs, telemetry, counts. Never decoration. */
+  .readout {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 0.66rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    line-height: 1.4;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .label {
+    font-family: var(--font-sans), sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    line-height: 1.3;
+  }
+
+  .prose-body {
+    max-width: 68ch;
+    line-height: 1.7;
+  }
+
+  /* ── Chamfer system ──────────────────────────────────────────────────────
+     Every angled corner on the site comes from here. `--cut` is inheritable,
+     so a parent can retune a whole cluster at once.                        */
+
+  /* signature: top-left + bottom-right, as on the reference chassis */
+  .cut {
+    clip-path: polygon(
+      var(--cut) 0,
+      100% 0,
+      100% calc(100% - var(--cut)),
+      calc(100% - var(--cut)) 100%,
+      0 100%,
+      0 var(--cut)
+    );
+  }
+
+  /* all four corners — the outer chassis and thumbnails */
+  .cut-4 {
+    clip-path: polygon(
+      var(--cut) 0,
+      calc(100% - var(--cut)) 0,
+      100% var(--cut),
+      100% calc(100% - var(--cut)),
+      calc(100% - var(--cut)) 100%,
+      var(--cut) 100%,
+      0 calc(100% - var(--cut)),
+      0 var(--cut)
+    );
+  }
+
+  /* bottom-right only — quieter, for cards in a dense grid */
+  .cut-br {
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% calc(100% - var(--cut)),
+      calc(100% - var(--cut)) 100%,
+      0 100%
+    );
+  }
+
+  /* Stroked chamfer. clip-path also clips borders, so the element itself is
+     the stroke and an inset pseudo-element paints the fill.
+     NOTE: never put `.chassis` on an <input>, <textarea> or <img> — replaced
+     elements don't render ::before, so they come out as solid blocks. Wrap. */
+  .chassis {
+    position: relative;
+    background: var(--color-line);
+    isolation: isolate;
+  }
+  .chassis::before {
+    content: "";
+    position: absolute;
+    inset: var(--stroke);
+    z-index: -1;
+    background: var(--chassis-fill, var(--color-void));
+    clip-path: inherit;
+  }
+  .chassis-hot {
+    background: var(--color-line-hot);
+  }
+
+  /**
+   * Site-wide heat wash. A single fixed layer behind all content, anchored to
+   * the viewport rather than the document so a long product page stays warm all
+   * the way down instead of going cold below the fold.
+   *
+   * It sits at z-index -1, above body's flat background but under everything
+   * else. Product plates are opaque, so black garments still read against it.
+   */
+  .page-heat {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(
+          130% 90% at 50% -12%,
+          color-mix(in oklch, var(--color-ember) 55%, transparent) 0%,
+          color-mix(in oklch, var(--color-blood) 62%, transparent) 30%,
+          transparent 75%
+        )
+        no-repeat,
+      linear-gradient(
+        180deg,
+        oklch(0.245 0.105 28) 0%,
+        oklch(0.185 0.065 28) 40%,
+        var(--color-void) 80%
+      );
+  }
+
+  /* heat bloom behind a focal element */
+  .bloom {
+    background: radial-gradient(
+      circle at center,
+      color-mix(in oklch, var(--color-ember) 42%, transparent) 0%,
+      color-mix(in oklch, var(--color-blood) 22%, transparent) 38%,
+      transparent 70%
+    );
+  }
+
+  /* ── Atmosphere ────────────────────────────────────────────────────────── */
+
+  .grain::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    pointer-events: none;
+    opacity: 0.055;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* CRT scanlines — a possessed machine, not a novelty filter */
+  .scanlines::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 69;
+    pointer-events: none;
+    opacity: 0.14;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0 2px,
+      rgba(0, 0, 0, 0.5) 3px,
+      transparent 4px
+    );
+  }
+
+  /* ── Motion ──────────────────────────────────────────────────────────────
+     Everything here is CSS-driven and *safe by default*: with scripting off or
+     broken, content sits at its finished state and is fully readable. JS only
+     ever adds the starting state, never the end state. Content must never be
+     invisible because a script didn't run.                                   */
+
+  /* On-mount entrance. `both` holds the final frame, so even a cancelled or
+     zero-duration animation ends visible. */
+  .rise {
+    animation: riseIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: var(--d, 0ms);
+  }
+
+  /**
+   * One-shot glitch for display headings.
+   *
+   * Fires once as the heading enters view, then settles to clean type — a
+   * permanently looping glitch wrecks legibility and is hostile to anyone
+   * sensitive to motion. The ghosts are pseudo-elements, so the real text is
+   * never touched: with scripting off, or under reduced-motion, you just get
+   * the heading.
+   */
+  .glitch {
+    position: relative;
+    display: inline-block;
+  }
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    pointer-events: none;
+    opacity: 0;
+  }
+  /* 5s cycle, but the burst only occupies the first ~7% of it (≈0.35s) — the
+     remaining 93% is deliberately still, so it reads as an occasional signal
+     fault rather than a heading that never stops moving. `--gi` staggers the
+     lines of a multi-line heading so they don't fire in lockstep. */
+  .glitch.is-glitching {
+    animation: glitchShift 5s steps(1, end) infinite both;
+    animation-delay: calc(var(--gi, 0) * 0.12s);
+  }
+  .glitch.is-glitching::before {
+    color: var(--color-ember);
+    animation: glitchA 5s steps(1, end) infinite both;
+    animation-delay: calc(var(--gi, 0) * 0.12s);
+  }
+  .glitch.is-glitching::after {
+    color: var(--color-bone);
+    mix-blend-mode: screen;
+    animation: glitchB 5s steps(1, end) infinite both;
+    animation-delay: calc(var(--gi, 0) * 0.12s);
+  }
+
+  /* Scroll-triggered reveal. Base state is visible; `.will-reveal` is added by
+     JS only for elements still below the fold, and removed again by `.is-in`. */
+  .reveal {
+    transition:
+      opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: var(--d, 0ms);
+  }
+  .reveal.will-reveal {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  .reveal.will-reveal.is-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Per-word stagger for the manifesto. Words sit at full contrast unless JS
+     has explicitly armed the reveal. */
+  .words.will-reveal {
+    opacity: 1;
+    transform: none;
+  }
+  .words.will-reveal > span {
+    opacity: 0.14;
+    transition: opacity 0.5s ease-out;
+    transition-delay: calc(var(--i, 0) * 42ms);
+  }
+  .words.will-reveal.is-in > span {
+    opacity: 1;
+  }
+
+  .animate-marquee {
+    animation: marquee var(--marquee-duration, 30s) linear infinite;
+    will-change: transform;
+  }
+
+  /* status LED — the one thing allowed to pulse */
+  .animate-led {
+    animation: led 2.4s ease-in-out infinite;
+  }
+
+  /* horizontal sweep across a panel, like a scanner pass */
+  .animate-sweep {
+    animation: sweep 4.5s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  }
+}
+
+/* Hard cuts, not tweens — `steps(1, end)` on the animation makes each keyframe
+   snap, which is what reads as a broken signal rather than a smooth wobble. */
+@keyframes glitchA {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translate(0);
+  }
+  1% {
+    opacity: 0.85;
+    clip-path: inset(6% 0 80% 0);
+    transform: translate(-0.26em, -0.03em);
+  }
+  3.2% {
+    opacity: 0.85;
+    clip-path: inset(64% 0 20% 0);
+    transform: translate(0.21em, 0.02em);
+  }
+  5.4% {
+    opacity: 0.8;
+    clip-path: inset(32% 0 54% 0);
+    transform: translate(-0.17em, 0.03em);
+  }
+  7.6% {
+    opacity: 0.7;
+    clip-path: inset(82% 0 4% 0);
+    transform: translate(0.28em, -0.02em);
+  }
+  9.8% {
+    opacity: 0.5;
+    clip-path: inset(18% 0 70% 0);
+    transform: translate(-0.12em, 0);
+  }
+  12% {
+    opacity: 0;
+  }
+}
+
+@keyframes glitchB {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translate(0);
+  }
+  1.8% {
+    opacity: 0.7;
+    clip-path: inset(72% 0 12% 0);
+    transform: translate(0.24em, 0.02em);
+  }
+  4% {
+    opacity: 0.7;
+    clip-path: inset(20% 0 66% 0);
+    transform: translate(-0.30em, -0.02em);
+  }
+  6.2% {
+    opacity: 0.6;
+    clip-path: inset(48% 0 38% 0);
+    transform: translate(0.19em, -0.03em);
+  }
+  8.4% {
+    opacity: 0.45;
+    clip-path: inset(4% 0 86% 0);
+    transform: translate(-0.23em, 0.02em);
+  }
+  10.6% {
+    opacity: 0;
+  }
+}
+
+/* the real text itself jitters a little, then lands */
+@keyframes glitchShift {
+  0%,
+  100% {
+    transform: translate(0);
+  }
+  1.2% {
+    transform: translate(2px, -1px);
+  }
+  5.6% {
+    transform: translate(-2px, 1px);
+  }
+  5.6% {
+    transform: translate(1px, 1px);
+  }
+  7.8% {
+    transform: translate(-1px, 0);
+  }
+  10% {
+    transform: translate(0);
+  }
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes marquee {
   to {
     transform: translateX(-50%);
   }
 }
-.animate-marquee {
-  animation: marquee var(--marquee-duration, 28s) linear infinite;
-}
-.marquee-paused:hover .animate-marquee {
-  animation-play-state: paused;
+
+@keyframes led {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
 }
 
-/* outlined display text */
-.text-stroke {
-  -webkit-text-stroke: 1.5px var(--color-ink);
-  color: transparent;
-}
-.text-stroke-devil {
-  -webkit-text-stroke: 1.5px var(--color-devil);
-  color: transparent;
+@keyframes sweep {
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(210%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-marquee {
-    animation: none;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
 }

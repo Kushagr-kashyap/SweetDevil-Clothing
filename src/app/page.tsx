@@ -1,24 +1,22 @@
-import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import FireHand from "@/components/FireHand";
 import Marquee from "@/components/Marquee";
-import ProductCarousel from "@/components/ProductCarousel";
-import Collections from "@/components/Collections";
+import Catalogue from "@/components/Catalogue";
 import Manifesto from "@/components/Manifesto";
+import CustomDesign from "@/components/CustomDesign";
 import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
-    <>
-      <Navbar />
-      <main>
-        <Hero />
-        <Marquee />
-        <ProductCarousel />
-        <Collections />
-        <Manifesto />
-        <Marquee text="Limited drops" duration={22} outline />
-        <Footer />
-      </main>
-    </>
+    <main>
+      <Hero />
+      <FireHand />
+      <Marquee />
+      <Catalogue />
+      <Manifesto />
+      <Marquee text="Limited drops" duration={24} outline />
+      <CustomDesign />
+      <Footer />
+    </main>
   );
 }

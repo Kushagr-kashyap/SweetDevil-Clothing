@@ -1,48 +1,38 @@
-"use client";
+import Reveal from "./Reveal";
 
-import { motion, useScroll, useTransform } from "motion/react";
-import { useRef } from "react";
-
-const line =
+const LINE =
   "Some run cold. You run hot. Sweet Devil is for the loud ones, the unserious ones, the ones who'd rather be a little bad than boring.";
 
+/**
+ * Words fade up in sequence when the paragraph enters view. The stagger is CSS
+ * `transition-delay`, so the copy is legible at full contrast if scripting
+ * never runs — the previous scroll-scrubbed version left it at 12% opacity.
+ */
 export default function Manifesto() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start 0.85", "end 0.4"],
-  });
-
-  const words = line.split(" ");
+  const words = LINE.split(" ");
 
   return (
-    <section id="manifesto" ref={ref} className="mx-auto max-w-5xl px-5 py-32 md:px-10 md:py-44">
-      <p className="eyebrow mb-10 text-devil">The manifesto</p>
-      <p className="display flex flex-wrap gap-x-4 gap-y-2 text-4xl leading-tight md:text-6xl">
-        {words.map((w, i) => {
-          const start = i / words.length;
-          const end = start + 1 / words.length;
-          return <Word key={i} progress={scrollYProgress} range={[start, end]} word={w} />;
-        })}
-      </p>
+    <section id="manifesto" className="px-[max(1.25rem,5vw)] py-20 md:py-32">
+      <div className="border-line/60 mb-8 flex items-center gap-3 border-b pb-3">
+        <span className="readout text-ember">MFT</span>
+        <span className="bg-line/60 h-px flex-1" />
+        <span className="readout text-bone-faint">about</span>
+      </div>
+
+      <Reveal
+        as="p"
+        className="words display flex max-w-4xl flex-wrap gap-x-3 gap-y-1 text-[length:var(--step-2)] leading-[1.15]"
+      >
+        {words.map((w, i) => (
+          <span
+            key={i}
+            style={{ ["--i" as string]: i }}
+            className={/devil|bad|hot/i.test(w) ? "text-ember" : "text-bone"}
+          >
+            {w}
+          </span>
+        ))}
+      </Reveal>
     </section>
-  );
-}
-
-function Word({
-  progress,
-  range,
-  word,
-}: {
-  progress: ReturnType<typeof useScroll>["scrollYProgress"];
-  range: [number, number];
-  word: string;
-}) {
-  const opacity = useTransform(progress, range, [0.15, 1]);
-  const devil = word.toLowerCase().includes("devil") || word.toLowerCase().includes("bad");
-  return (
-    <motion.span style={{ opacity }} className={devil ? "text-devil" : ""}>
-      {word}
-    </motion.span>
   );
 }

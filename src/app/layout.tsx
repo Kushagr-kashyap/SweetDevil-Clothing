@@ -1,34 +1,48 @@
-import type { Metadata } from "next";
-import { Anton, Space_Grotesk, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Archivo, Archivo_Black, Azeret_Mono } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
+import Chassis from "@/components/Chassis";
 
-const anton = Anton({
-  variable: "--font-anton",
+// Heavy industrial grotesque — equipment labelling, not fashion-editorial.
+const archivoBlack = Archivo_Black({
+  variable: "--font-archivo-black",
   weight: "400",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space",
+const archivo = Archivo({
+  variable: "--font-archivo",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// Reserved for text a machine would actually print: SKUs, counts, telemetry.
+const azeret = Azeret_Mono({
+  variable: "--font-azeret",
+  weight: ["400", "500"],
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Sweet Devil — Unleash Your Inner Devil",
+  metadataBase: new URL("https://sweetdevil.in"),
+  title: "Sweet Devil — Unleash your inner devil",
   description:
-    "Sweet Devil is an edgy graphic-tee label for the ones who run a little hotter. Devil's Club, Brainrot Club & limited drops.",
+    "Oversized graphic tees for the ones who run a little hotter. Devil's Club, Brainrot Club, limited drops and one-off custom designs. Made in India.",
   openGraph: {
-    title: "Sweet Devil — Unleash Your Inner Devil",
+    title: "Sweet Devil — Unleash your inner devil",
     description:
-      "Edgy graphic tees for the ones who run a little hotter. Limited drops, loud designs.",
+      "Oversized graphic tees for the ones who run a little hotter. Limited drops, loud designs.",
     type: "website",
+    locale: "en_IN",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#1a0d0b",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({
@@ -39,10 +53,19 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${anton.variable} ${spaceGrotesk.variable} ${geistMono.variable} antialiased`}
+      className={`${archivoBlack.variable} ${archivo.variable} ${azeret.variable}`}
     >
-      <body className="grain min-h-screen bg-bg text-ink">
-        <SmoothScroll>{children}</SmoothScroll>
+      {/* no bg-* utility here — it would paint over the .page-heat layer */}
+      <body className="grain scanlines text-bone min-h-screen">
+        {/* site-wide red heat wash, behind everything */}
+        <div className="page-heat" aria-hidden />
+        {/* Chassis must sit *inside* SmoothScroll — it calls useLenis(), which
+            reads context from ReactLenis. Outside it, menu scroll-lock is a
+            silent no-op. */}
+        <SmoothScroll>
+          <Chassis />
+          {children}
+        </SmoothScroll>
       </body>
     </html>
   );

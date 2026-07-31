@@ -1,99 +1,129 @@
-"use client";
+import Image from "next/image";
+import Link from "next/link";
+import FireBackdrop from "./FireBackdrop";
+import Glitch from "./Glitch";
+import { Ticks } from "./hud";
+import { products } from "@/lib/products";
 
-import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
+/**
+ * The entrance is a pure CSS animation with `animation-fill-mode: both`, not a
+ * JS one. If scripting fails the hero still paints — which is not true of a
+ * Motion `initial`/`animate` pair, where a dead script leaves opacity at 0.
+ */
+const at = (ms: number, extra: Record<string, string> = {}) =>
+  ({ ["--d"]: `${ms}ms`, ...extra }) as React.CSSProperties;
+
+/** Four tees pulled forward as the "loadout" strip beneath the hero. */
+const LOADOUT = [
+  "killswitch-engage",
+  "satan-s-child",
+  "bound-2",
+  "professional-tweeter",
+].map((s) => products.find((p) => p.slug === s)!);
 
 export default function Hero() {
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const sx = useSpring(mx, { stiffness: 60, damping: 15 });
-  const sy = useSpring(my, { stiffness: 60, damping: 15 });
-
-  const tx = useTransform(sx, [-0.5, 0.5], [-18, 18]);
-  const ty = useTransform(sy, [-0.5, 0.5], [-12, 12]);
-  const txInverse = useTransform(sx, [-0.5, 0.5], [14, -14]);
-
-  function onMove(e: React.MouseEvent<HTMLDivElement>) {
-    const r = e.currentTarget.getBoundingClientRect();
-    mx.set((e.clientX - r.left) / r.width - 0.5);
-    my.set((e.clientY - r.top) / r.height - 0.5);
-  }
-
   return (
     <section
       id="top"
-      onMouseMove={onMove}
-      className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden px-5 pt-24"
+      className="relative px-[max(1.25rem,5vw)] pb-16 pt-24 md:pb-24 md:pt-28"
     >
-      {/* glow */}
-      <motion.div
-        style={{ x: tx, y: ty }}
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[60vw] w-[60vw] -translate-x-1/2 -translate-y-1/2 rounded-full bg-devil/20 blur-[120px]"
+      <div
+        style={at(50)}
+        className="rise flex flex-wrap items-center gap-x-3 gap-y-1"
+      >
+        <span className="readout text-ember">SD—01</span>
+        <span className="bg-line/60 h-px w-8" />
+        <span className="readout text-bone-faint">est. 2024 · made in india</span>
+      </div>
+
+      <Glitch
+        as="h1"
+        lines={["Sweet", "Devil"]}
+        style={at(120)}
+        className="rise display text-bone mt-4 flex flex-col items-start text-[length:var(--step-4)] md:mt-6"
       />
 
-      <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.8 }}
-        className="eyebrow z-10 mb-6 text-ink-dim"
+      <p
+        style={at(200)}
+        className="rise text-bone-dim prose-body mt-5 max-w-[46ch] text-[length:var(--step-0)] md:mt-7"
       >
-        Graphic tees · est. for sinners
-      </motion.p>
+        Most clothes are built to help you blend in. These aren&apos;t. Oversized
+        cuts, graphics loud enough to start something, printed in small runs and
+        never restocked.
+      </p>
 
-      <motion.h1
-        style={{ x: tx }}
-        className="display z-10 text-center text-[18vw] leading-[0.82] md:text-[15vw]"
+      {/* ── the subject ── */}
+      <div
+        style={at(300, { "--cut": "20px" })}
+        className="rise chassis cut-4 relative mt-9 aspect-[4/5] w-full overflow-hidden sm:aspect-[16/11] md:mt-12"
       >
-        <motion.span
-          initial={{ opacity: 0, y: "30%" }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-          className="block"
-        >
-          Sweet
-        </motion.span>
-        <motion.span
-          initial={{ opacity: 0, y: "30%" }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-          className="block text-devil"
-          style={{ x: txInverse }}
-        >
-          Devil
-        </motion.span>
-      </motion.h1>
+        <div className="absolute inset-px overflow-hidden">
+          <FireBackdrop className="scale-110 opacity-70" />
+          {/* darken the plate so the mascot and type stay readable over fire */}
+          <div className="from-void via-void/45 absolute inset-0 bg-gradient-to-t to-transparent" />
+          <div className="bloom absolute left-1/2 top-1/2 h-[62%] w-[62%] -translate-x-1/2 -translate-y-1/2 opacity-70" />
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7, duration: 0.8 }}
-        className="z-10 mt-8 max-w-md text-center text-lg text-ink-dim"
-      >
-        Unleash your inner devil. Loud graphics, limited drops, zero apologies.
-      </motion.p>
+          <Image
+            src="/brand/devil.png"
+            alt="The Sweet Devil mascot, wings spread, holding two fireballs"
+            width={1563}
+            height={1563}
+            priority
+            // without this the LCP image is fetched at the top breakpoint (3840w)
+            sizes="(max-width: 640px) 100vw, 60vw"
+            className="absolute left-1/2 top-1/2 h-[105%] w-auto max-w-none -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-[0_0_40px_rgba(255,60,30,0.35)]"
+          />
 
-      <motion.a
-        href="#shop"
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.9, duration: 0.6 }}
-        className="group z-10 mt-10 flex items-center gap-3 rounded-full bg-ink px-7 py-3.5 font-semibold text-bg transition-transform hover:scale-[1.03]"
-      >
-        Enter the drop
-        <span className="transition-transform group-hover:translate-x-1">→</span>
-      </motion.a>
-
-      {/* scroll cue */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.3 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-      >
-        <div className="eyebrow flex flex-col items-center gap-2 text-ink-dim">
-          Scroll
-          <span className="h-10 w-px animate-pulse bg-line" />
+          <span
+            aria-hidden
+            className="animate-sweep via-flare/25 absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent to-transparent"
+          />
         </div>
-      </motion.div>
+
+        <Ticks />
+
+        <span className="readout text-bone-faint absolute bottom-3 left-4">
+          unleash your inner devil
+        </span>
+      </div>
+
+      {/* ── loadout strip ── */}
+      <div style={at(380)} className="rise mt-4 grid grid-cols-4 gap-2 md:gap-3">
+        {LOADOUT.map((p) => (
+          <Link
+            key={p.slug}
+            href={`/products/${p.slug}`}
+            className="chassis cut-4 group relative aspect-square overflow-hidden"
+            style={{ ["--cut" as string]: "9px" }}
+          >
+            <span className="absolute inset-px overflow-hidden">
+              <Image
+                src={p.image}
+                alt={p.name}
+                width={1000}
+                height={1000}
+                sizes="25vw"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+            </span>
+          </Link>
+        ))}
+      </div>
+
+      {/* ── CTA ── */}
+      <Link
+        style={at(460, { "--cut": "16px" })}
+        href="/products"
+        className="rise cut bg-bone text-void group mt-4 flex items-center justify-center gap-3 py-4 md:py-5"
+      >
+        <span className="label text-[0.8rem] md:text-sm">Shop the collection</span>
+        <span
+          aria-hidden
+          className="transition-transform duration-300 group-hover:translate-x-1"
+        >
+          →
+        </span>
+      </Link>
     </section>
   );
 }
