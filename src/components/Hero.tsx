@@ -27,20 +27,14 @@ export default function Hero() {
       id="top"
       className="relative px-[max(1.25rem,5vw)] pb-16 pt-24 md:pb-24 md:pt-28"
     >
-      <div
-        style={at(50)}
-        className="rise flex flex-wrap items-center gap-x-3 gap-y-1"
-      >
-        <span className="readout text-ember">SD—01</span>
-        <span className="bg-line/60 h-px w-8" />
-        <span className="readout text-bone-faint">est. 2024 · made in india</span>
-      </div>
-
+      {/* The "SD—01 · est. 2024 · made in india" strip that sat here was removed
+          at the owner's request — it pushed the wordmark down the fold on a
+          phone for a line nobody reads. The same facts live on /about. */}
       <Glitch
         as="h1"
         lines={["Sweet", "Devil"]}
         style={at(120)}
-        className="rise display text-bone mt-4 flex flex-col items-start text-[length:var(--step-4)] md:mt-6"
+        className="rise display text-bone flex flex-col items-start text-[length:var(--step-4)]"
       />
 
       <p

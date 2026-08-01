@@ -40,7 +40,15 @@ export const TOTAL_SHOTS = LEVEL_SHOTS.reduce((a, b) => a + b, 0);
  */
 const LEVELS = [
   { speed: 0.3, pause: 30, range: 0.5 }, // only 5 shots to learn on, so gentle
-  { speed: 0.62, pause: 12, range: 0.8 },
+  // Level 2 is deliberately EASIER than level 1 feels, not harder — it sweeps
+  // the full height so it looks more dramatic, but moves slower and rests
+  // twice as long at each end. Big travel reads as "harder" while a long dwell
+  // at the turnaround is what actually makes it hittable.
+  //
+  // Tuned so a player who half-tries clears 10 hits and lands the 10% tier:
+  // the reward has to feel reachable or nobody plays a second round. Level 3
+  // is where 20% is earned.
+  { speed: 0.44, pause: 24, range: 1.0 },
   { speed: 0.95, pause: 4, range: 1.0 }, // full height, barely rests
 ];
 

@@ -48,6 +48,50 @@ export default async function OrderPage({
         }
       />
 
+      {/* The note. Shown only on a paid order — putting a thank-you above an
+          unpaid one reads as a store that doesn't know whether it got the
+          money. This is the moment a customer is most likely to screenshot, so
+          it's written to be worth screenshotting. */}
+      {paid && (
+        <section className="px-[max(1.25rem,5vw)] pb-8">
+          <div
+            className="chassis chassis-hot cut-4 relative overflow-hidden p-6 md:p-9"
+            style={{ ["--cut" as string]: "22px" }}
+          >
+            <span
+              aria-hidden
+              className="bloom absolute -right-10 -top-16 h-56 w-56 opacity-40"
+            />
+            <div className="relative">
+              <p className="readout text-ember">transmission received</p>
+              <p className="display text-bone mt-2 text-[length:var(--step-2)] leading-[0.95]">
+                Welcome to
+                <br />
+                the club
+              </p>
+              <div className="text-bone-dim prose-body mt-4 max-w-[54ch] space-y-3 text-[0.98rem]">
+                <p>
+                  You just bought something most people wouldn&apos;t wear. That
+                  was always the point.
+                </p>
+                <p>
+                  It gets printed, packed by hand, and sent your way. When it
+                  lands it&apos;s properly yours — small run, no restock, and
+                  you won&apos;t be passing someone in the same one.
+                </p>
+                <p className="text-bone">
+                  Thank you, genuinely. Brands like this run on the people who
+                  go first. Wear it loud.
+                </p>
+              </div>
+              <p className="readout text-bone-faint mt-5">
+                — the two idiots who started sweet devil
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
       <section className="px-[max(1.25rem,5vw)] pb-16">
         <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:gap-10">
           <div

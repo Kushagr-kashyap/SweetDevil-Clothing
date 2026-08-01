@@ -158,6 +158,32 @@ export default function Chassis() {
         </span>
       </div>
 
+      {/* ── search ──
+           Sits left of the burger rather than in the hero. The hero band is the
+           first thing every visitor sees and a full-width search field there
+           would cost the wordmark its fold on a phone — for a catalogue this
+           size, an icon one tap from every page is enough. */}
+      <Link
+        href="/search"
+        onClick={() => setOpen(false)}
+        aria-label="Search products"
+        className="pointer-events-auto group absolute right-[calc(var(--frame-inset)+56px)] top-[calc(var(--frame-inset)+4px)] z-10 grid h-12 w-12 place-items-center"
+      >
+        <svg
+          width="19"
+          height="19"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.9"
+          aria-hidden
+          className="text-bone group-hover:text-ember transition-colors"
+        >
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-3.5-3.5" />
+        </svg>
+      </Link>
+
       {/* ── menu trigger ── */}
       <button
         type="button"
@@ -188,6 +214,38 @@ export default function Chassis() {
           style={{ animation: `riseIn 0.28s ${EASE} both` }}
         >
           <div className="flex h-full flex-col justify-center overflow-y-auto px-[max(1.75rem,8vw)] pb-16 pt-24">
+            {/* A plain GET form, not a controlled input — it submits and works
+                with scripting dead, same rule as everything else on the site. */}
+            <form
+              action="/search"
+              method="get"
+              role="search"
+              className="rise mb-8 flex items-stretch gap-2"
+              style={{ ["--d" as string]: "40ms" }}
+              onSubmit={() => setOpen(false)}
+            >
+              <span
+                className="chassis cut focus-within:bg-ember block min-w-0 flex-1 transition-colors"
+                style={{ ["--cut" as string]: "8px" }}
+              >
+                <input
+                  type="search"
+                  name="q"
+                  placeholder="Search tees, designs…"
+                  aria-label="Search products"
+                  // 16px minimum or iOS zooms the page on focus
+                  className="text-bone placeholder:text-bone-faint w-full bg-transparent px-3 py-3 text-base outline-none"
+                />
+              </span>
+              <button
+                type="submit"
+                className="cut bg-bone text-void label shrink-0 px-5"
+                style={{ ["--cut" as string]: "8px" }}
+              >
+                Go
+              </button>
+            </form>
+
             <p className="readout text-bone-faint mb-8">Navigation</p>
 
             <ul className="flex flex-col">
