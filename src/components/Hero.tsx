@@ -55,7 +55,7 @@ export default function Hero() {
           <FireBackdrop className="scale-110 opacity-70" />
           {/* darken the plate so the mascot and type stay readable over fire */}
           <div className="from-void via-void/45 absolute inset-0 bg-gradient-to-t to-transparent" />
-          <div className="bloom absolute left-1/2 top-1/2 h-[62%] w-[62%] -translate-x-1/2 -translate-y-1/2 opacity-70" />
+          <div className="bloom pointer-events-none absolute left-1/2 top-1/2 h-[62%] w-[62%] -translate-x-1/2 -translate-y-1/2 opacity-70" />
 
           <Image
             src="/brand/devil.png"

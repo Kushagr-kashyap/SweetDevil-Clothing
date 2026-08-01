@@ -25,12 +25,17 @@ export default function CharacterPanel({ character }: { character: Character }) 
         ["--chassis-fill" as string]: "var(--color-void-deep)",
       }}
     >
+      {/* `pointer-events-none` is load-bearing, not tidiness. This span is
+          absolutely positioned, so it paints above the static <summary>
+          regardless of DOM order and silently ate every tap on the toggle.
+          Decorative layers must never be clickable. */}
       <span
         aria-hidden
-        className="bloom absolute -right-16 -top-20 h-64 w-64 opacity-30"
+        className="bloom pointer-events-none absolute -right-16 -top-20 h-64 w-64 opacity-30"
       />
 
-      <summary className="relative flex cursor-pointer list-none items-center gap-3 [&::-webkit-details-marker]:hidden">
+      {/* z-10 keeps the control above any future decorative layer. */}
+      <summary className="relative z-10 flex cursor-pointer list-none items-center gap-3 [&::-webkit-details-marker]:hidden">
         <span className="readout text-ember">about character</span>
         <span className="bg-line/60 h-px flex-1" />
         <span className="readout text-bone-faint group-open:hidden">read</span>

@@ -46,7 +46,7 @@ export default function AboutPage() {
           <span className="absolute inset-px overflow-hidden">
             <span
               aria-hidden
-              className="bloom absolute left-1/2 top-1/2 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 opacity-60"
+              className="bloom pointer-events-none absolute left-1/2 top-1/2 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 opacity-60"
             />
             <Image
               src="/brand/devil.png"

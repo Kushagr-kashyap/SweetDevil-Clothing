@@ -60,7 +60,7 @@ export default async function OrderPage({
           >
             <span
               aria-hidden
-              className="bloom absolute -right-10 -top-16 h-56 w-56 opacity-40"
+              className="bloom pointer-events-none absolute -right-10 -top-16 h-56 w-56 opacity-40"
             />
             <div className="relative">
               <p className="readout text-ember">transmission received</p>
