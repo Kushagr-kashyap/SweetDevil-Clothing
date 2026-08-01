@@ -199,6 +199,24 @@ const RAW: Omit<Product, "image">[] = [
     price: 699,
     badge: "SALE",
     wixSku: "00686382694",
+    character: "atlas",
+    // Artwork is on the back, so the back leads the card and the gallery —
+    // same reasoning as The Lovers.
+    card: "/products/killswitch-engage-back.png",
+    model: { height: "6'2\"", wears: "XL" },
+    gallery: [
+      "/products/killswitch-engage-model-back.png",
+      "/products/killswitch-engage-model-front.png",
+      "/products/killswitch-engage-back.png",
+    ],
+    // These on-body shots are genuine cut-outs, so the warm pool behind them
+    // shows THROUGH the transparency and rims the subject — the effect the
+    // opaque Lovers shots could only fake. The flat stays on the lit plate: a
+    // black garment on a dark plate loses its silhouette.
+    backlit: [
+      "/products/killswitch-engage-model-back.png",
+      "/products/killswitch-engage-model-front.png",
+    ],
     description: `Dive into the dark beauty of sorrow with this striking Killswitch Engage inspired tee. On the front, Death looms in skeletal form, cradling a bleeding woman in his bony arms, her guts spilling out in visceral, tragic detail. It's a raw, emotional portrayal of love lost and pain embraced, a perfect visual echo of the album "The End of Heartache."
 
 The haunting scene is grounded by the title text across the chest in weathered old white, mirroring the band's iconic aesthetic. Set against jet black cotton, this tee is crafted for fans who wear their grief like armor and find power in the brutal honesty of metalcore.

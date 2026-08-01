@@ -42,6 +42,24 @@ export const characters: Character[] = [
     ],
     quote: "The world gave up.\nI never did.",
   },
+  {
+    id: "atlas",
+    name: "ATLAS",
+    realName: "Arjun Singh",
+    age: 31,
+    occupation: "Former Indian Army combat engineer",
+    story: [
+      "During a massive earthquake, Atlas was leading a rescue operation. There wasn't enough time. He had to choose between two collapsing buildings.",
+      "He saved one. The other fell. Forty-three people lost their lives.",
+      "The world called him a hero. Atlas saw only the lives he couldn't save.",
+      "That day, his Inner Devil awakened. Not out of rage. Not out of revenge. But from a promise — a promise that no one should ever be left behind simply because time ran out.",
+      "Since that day, Atlas has answered every call for help without hesitation. Every rescue is another chance to keep that promise.",
+      "He knows he can't save everyone. But as long as someone is still waiting, he will always be the one running toward the danger.",
+    ],
+    // NOTE: no quote was supplied for Atlas, so this is lifted VERBATIM from his
+    // own story rather than written. Swap it for the owner's chosen line.
+    quote: "No one gets left behind\nbecause time ran out.",
+  },
 ];
 
 export const characterById = (id: string) => characters.find((c) => c.id === id);
