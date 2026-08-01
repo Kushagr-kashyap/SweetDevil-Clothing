@@ -213,14 +213,17 @@ export default async function ProductPage({ params }: Params) {
                 </ul>
               </Panel>
 
-              {/* The character sits between the spec sheet and Shipping, at the
-                  owner's direction — and it's the right place. Someone reading
-                  this far either wants a reason to buy or is checking delivery.
-                  The story answers the first; Shipping answers the second. */}
+              {/* Between the spec sheet and Shipping, at the owner's direction —
+                  and it's the right place: someone reading this far either wants
+                  a reason to buy or is checking delivery.
+
+                  Uses the same Panel as its neighbours rather than a bespoke
+                  container. A hand-rolled version drifted on chamfer, padding
+                  and heading weight and visibly broke the rhythm of the stack. */}
               {character && (
-                <div className="!mt-6">
+                <Panel title="About character">
                   <CharacterPanel character={character} />
-                </div>
+                </Panel>
               )}
 
               <Panel title="Shipping">
