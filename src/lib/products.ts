@@ -85,6 +85,19 @@ export type Product = {
   specs?: readonly string[];
 
   /**
+   * The image the catalogue card shows, when the hero graphic isn't the front.
+   *
+   * A grid answers one question — "which design do I want?" — so the card has
+   * to show the side the design actually lives on. The Lovers proved the point:
+   * its front is two small skeleton hands and its back is the whole graphic, so
+   * on a shelf next to Killswitch and Slipknot it read as the weakest piece in
+   * the range while actually being one of the strongest.
+   *
+   * Per-product, because which side is the hero varies per design.
+   */
+  card?: string;
+
+  /**
    * Character whose story is told on this product's page — an id from
    * characters.ts. One garment, one character.
    */
@@ -132,6 +145,9 @@ export const specsFor = (p: Product): readonly string[] => p.specs ?? SPECS;
 export const galleryFor = (p: Product): string[] =>
   p.gallery && p.gallery.length > 0 ? p.gallery : [p.image];
 
+/** The thumbnail for rails, grids and search. See `Product.card`. */
+export const cardImage = (p: Product): string => p.card ?? p.image;
+
 const RAW: Omit<Product, "image">[] = [
   // ── Devil's Club ────────────────────────────────────────────────────────
   {
@@ -152,13 +168,18 @@ const RAW: Omit<Product, "image">[] = [
     specs: SPECS_240,
     // Model shots are .png because they are cut out — transparency is the whole
     // point. A .jpg here would carry a white box and defeat the backlight.
+    // Back first, all the way through: the hero graphic leads the card, then the
+    // same graphic on a body, then the front, then the flats.
     gallery: [
-      "/products/the-lovers-model-front.png",
       "/products/the-lovers-model-back.png",
-      "/products/the-lovers.png",
+      "/products/the-lovers-model-front.png",
       "/products/the-lovers-back.png",
+      "/products/the-lovers.png",
     ],
     model: { height: "5'7\"", wears: "M" },
+    // The artwork that sells this one is on the back, so that's what the rail
+    // shows — matching the other Devil's Club cards, which are all back prints.
+    card: "/products/the-lovers-back.png",
     // On-body shots only. The flat tees are cut-outs of a BLACK garment and
     // need the lit plate, or they read as a black hole with a print floating
     // in it.

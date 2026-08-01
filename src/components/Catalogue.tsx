@@ -5,7 +5,7 @@ import { useSmooothy } from "@/hooks/useSmooothy";
 import ProductCard from "./ProductCard";
 import Reveal from "./Reveal";
 import { Readout, SectionHead, Ticks } from "./hud";
-import { discount, inr, productsIn, sku } from "@/lib/products";
+import { cardImage, discount, inr, productsIn, sku } from "@/lib/products";
 
 const buyUrl = (slug: string) => `/products/${slug}`;
 
@@ -119,7 +119,7 @@ function LimitedEdition() {
             className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,var(--color-panel-hi),var(--color-panel)_72%)]"
           />
           <Image
-            src={p.image}
+            src={cardImage(p)}
             alt={p.name}
             width={1000}
             height={1000}

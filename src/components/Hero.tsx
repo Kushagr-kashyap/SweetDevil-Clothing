@@ -3,7 +3,7 @@ import Link from "next/link";
 import FireBackdrop from "./FireBackdrop";
 import Glitch from "./Glitch";
 import { Ticks } from "./hud";
-import { products } from "@/lib/products";
+import { cardImage, products } from "@/lib/products";
 
 /**
  * The entrance is a pure CSS animation with `animation-fill-mode: both`, not a
@@ -92,7 +92,7 @@ export default function Hero() {
           >
             <span className="absolute inset-px overflow-hidden">
               <Image
-                src={p.image}
+                src={cardImage(p)}
                 alt={p.name}
                 width={1000}
                 height={1000}

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { discount, inr, shortCode, type Product } from "@/lib/products";
+import { cardImage, discount, inr, shortCode, type Product } from "@/lib/products";
 
 export default function ProductCard({
   product: p,
@@ -34,7 +34,7 @@ export default function ProductCard({
           className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,var(--color-panel-hi),var(--color-panel)_70%)]"
         />
         <Image
-          src={p.image}
+          src={cardImage(p)}
           alt={p.name}
           width={1000}
           height={1000}
