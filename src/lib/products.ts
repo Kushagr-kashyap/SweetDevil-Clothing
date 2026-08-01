@@ -199,6 +199,7 @@ const RAW: Omit<Product, "image">[] = [
     price: 699,
     badge: "SALE",
     wixSku: "00686382694",
+    specs: SPECS_240,
     character: "atlas",
     // Artwork is on the back, so the back leads the card and the gallery —
     // same reasoning as The Lovers.
