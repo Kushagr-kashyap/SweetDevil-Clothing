@@ -10,15 +10,28 @@
 /** Every product photo is `public/products/<slug>.png`. */
 export const PHOTO_SIZE = 1000;
 
-/** Offered on every tee. Order matters — it's the order shown on the page. */
-export const SIZES = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"] as const;
+/**
+ * Offered on every tee. Order matters — it's the order shown on the page.
+ *
+ * XXXL was dropped on 2026-08-01: the size chart stops at 2XL, so anyone
+ * picking XXXL was choosing a size with no published measurements. Do not add a
+ * size back without adding its row to the chart image first.
+ */
+export const SIZES = ["XS", "S", "M", "L", "XL", "XXL"] as const;
 export type Size = (typeof SIZES)[number];
 
 /** "Type" on the Wix product page. */
 export const FITS = ["Regular", "Oversized"] as const;
 export type Fit = (typeof FITS)[number];
 
-/** Identical across the range, so it lives here rather than on each product. */
+/**
+ * The default spec sheet. Products may override it with their own `specs`.
+ *
+ * This used to be the ONLY spec sheet, applied to everything. That held while
+ * the range was one blank at 220 GSM; it broke the moment a 240 GSM garment
+ * arrived, and it would break harder for bottoms, which have no round neck.
+ * Read specs via `specsFor(product)`, never by importing this directly.
+ */
 export const SPECS = [
   "Oversized and regular fit available",
   "Unisex",
@@ -26,6 +39,17 @@ export const SPECS = [
   "220 GSM",
   "Bio washed",
   "100% pure cotton",
+] as const;
+
+/** The heavier blank. Premium line. */
+export const SPECS_240 = [
+  "Oversized and regular fit available",
+  "Unisex",
+  "Round neck",
+  "240 GSM (premium quality)",
+  "Easy wash",
+  "100% pure cotton",
+  "Premium printing",
 ] as const;
 
 export type CollectionId =
@@ -56,10 +80,81 @@ export type Product = {
    * require the customer's design brief before they can be added to the cart.
    */
   needsBrief?: boolean;
+
+  /** Overrides the default spec sheet. See specsFor(). */
+  specs?: readonly string[];
+
+  /**
+   * Character whose story is told on this product's page — an id from
+   * characters.ts. One garment, one character.
+   */
+  character?: string;
+
+  /**
+   * Every image for this product, in the order shown. When absent, the single
+   * `image` is used. Order is editorial and deliberate: on-body shots first,
+   * because a garment on a person sells and a garment on a white square does
+   * not.
+   */
+  gallery?: string[];
+
+  /** Size chart image, shown last. Fits differ, so this is per-product. */
+  sizeChart?: string;
+
+  /**
+   * Which `gallery` entries are cut out to transparency. These get a warm
+   * backlight behind them instead of the lit plate — the subject reads as
+   * rim-lit against the dark rather than sitting on a bright square.
+   *
+   * Listed explicitly rather than inferred from the filename: a convention like
+   * "contains -model-" breaks silently the first time someone names a file
+   * differently, and the failure mode is a black garment on a black background.
+   */
+  cutouts?: string[];
 };
+
+/** The spec sheet actually shown on a product page. */
+export const specsFor = (p: Product): readonly string[] => p.specs ?? SPECS;
+
+/** Every image for a product, in order — falls back to the single hero shot. */
+export const galleryFor = (p: Product): string[] =>
+  p.gallery && p.gallery.length > 0 ? p.gallery : [p.image];
 
 const RAW: Omit<Product, "image">[] = [
   // ── Devil's Club ────────────────────────────────────────────────────────
+  {
+    // FIRST CHARACTER GARMENT. The gallery order is the owner's brief and is
+    // not arbitrary: character on-body front, character on-body back, then the
+    // flat front and back. People buy the garment on a body; the flats are for
+    // checking the print once they already want it.
+    //
+    // ⚠️ PRICE IS A PLACEHOLDER — matched to the other tees pending the owner's
+    // real figure. This is a 240 GSM premium blank and may well cost more.
+    slug: "the-lovers",
+    name: "The Lovers",
+    collection: "devils-club",
+    mrp: 1299,
+    price: 999,
+    badge: "EXCLUSIVE",
+    character: "nyx",
+    specs: SPECS_240,
+    // Model shots are .png because they are cut out — transparency is the whole
+    // point. A .jpg here would carry a white box and defeat the backlight.
+    gallery: [
+      "/products/the-lovers-model-front.png",
+      "/products/the-lovers-model-back.png",
+      "/products/the-lovers.png",
+      "/products/the-lovers-back.png",
+    ],
+    cutouts: [
+      "/products/the-lovers-model-front.png",
+      "/products/the-lovers-model-back.png",
+    ],
+    sizeChart: "/brand/size-oversized-tee.jpg",
+    description: `Skeleton hands hooked together on the chest. Turn around and you get the whole story — two skeletons holding each other like the world already ended and they didn't care.
+
+Printed on a 240 GSM premium blank, heavier than our standard tee, so the ink sits flat and the shape holds after washing.`,
+  },
   {
     slug: "killswitch-engage",
     name: "Killswitch Engage",
