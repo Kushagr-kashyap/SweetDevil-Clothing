@@ -92,28 +92,31 @@ export default async function ProductPage({ params }: Params) {
               style={{ ["--cut" as string]: "20px" }}
             >
               <ul className="flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain">
-                {gallery.map((src, i) => (
+                {gallery.map((src, i) => {
+                  const backlit = p.backlit?.includes(src) ?? false;
+                  return (
                   <li
                     key={src}
                     className={`relative aspect-square w-full shrink-0 snap-center ${
-                      p.onDark ? "bg-void-deep" : "bg-panel"
+                      backlit ? "bg-void-deep" : "bg-panel"
                     }`}
                   >
-                    {/* The lit radial plate exists for garments shot on WHITE —
-                        it gives a black tee a surface to read against. */}
-                    {!p.onDark && (
+                    {/* The lit plate. Not decoration — a cut-out of a BLACK
+                        garment needs a lighter surface or its silhouette
+                        vanishes and only the print survives. */}
+                    {!backlit && (
                       <span
                         aria-hidden
                         className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,var(--color-panel-hi),var(--color-panel)_72%)]"
                       />
                     )}
 
-                    {/* Backlight, for photography already shot on black.
-                        Beneath the image, so it fills the letterbox margins
-                        either side of a portrait crop — the subject ends up
-                        standing in a pool of warm light rather than on a flat
-                        black square. Offset to 34% so it sits at head height. */}
-                    {p.onDark && (
+                    {/* Backlight, for on-body shots taken on black. Beneath the
+                        image so it fills the letterbox margins either side of a
+                        portrait crop — the subject stands in a pool of warm
+                        light rather than on a flat black square. Offset to 34%
+                        to sit at head height. */}
+                    {backlit && (
                       <span
                         aria-hidden
                         className="absolute left-1/2 top-[34%] h-[92%] w-[104%] -translate-x-1/2 -translate-y-1/2 rounded-[50%] opacity-80 blur-2xl"
@@ -142,7 +145,7 @@ export default async function ProductPage({ params }: Params) {
                         while the near-black backdrop around her lifts to a warm
                         glow. Low opacity on purpose: `screen` is unforgiving,
                         and anything stronger starts tinting her skin. */}
-                    {p.onDark && (
+                    {backlit && (
                       <span
                         aria-hidden
                         className="pointer-events-none absolute left-1/2 top-[30%] h-[60%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-[50%] opacity-45 blur-2xl mix-blend-screen"
@@ -153,7 +156,8 @@ export default async function ProductPage({ params }: Params) {
                       />
                     )}
                   </li>
-                ))}
+                  );
+                })}
               </ul>
               <Ticks />
               <span

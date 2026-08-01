@@ -102,19 +102,18 @@ export type Product = {
   sizeChart?: string;
 
   /**
-   * True when this product's photography is already shot on black.
+   * Gallery images shot on black, which get a dark plate and a warm backlight.
    *
-   * The default plate is a *lit* radial panel, which exists so black garments
-   * on a white studio background have a surface to read against. Photography
-   * that already carries its own dark backdrop and lighting needs the opposite:
-   * a dark plate, so the letterboxing either side of a portrait crop blends
-   * into the image instead of framing it in a lighter box.
+   * Everything NOT listed here gets the default lit plate — and that default
+   * matters more than it looks. A cut-out photo of a black t-shirt on a dark
+   * plate is a black shape on black: the garment's silhouette disappears and
+   * only the print survives. The lit plate exists precisely to give a black
+   * garment a surface to read against.
    *
-   * A CSS glow behind these would be invisible — the images are opaque — and
-   * layering one under a photo that already has a baked-in backlight would only
-   * fight it.
+   * So this is per-image, not per-product: one product can hold on-body shots
+   * that want darkness and flat cut-outs that want light.
    */
-  onDark?: boolean;
+  backlit?: string[];
 };
 
 /** The spec sheet actually shown on a product page. */
@@ -150,7 +149,13 @@ const RAW: Omit<Product, "image">[] = [
       "/products/the-lovers.png",
       "/products/the-lovers-back.png",
     ],
-    onDark: true,
+    // On-body shots only. The flat tees are cut-outs of a BLACK garment and
+    // need the lit plate, or they read as a black hole with a print floating
+    // in it.
+    backlit: [
+      "/products/the-lovers-model-front.png",
+      "/products/the-lovers-model-back.png",
+    ],
     // sizeChart intentionally absent until the chart image is supplied — a
     // missing file here would 404 in the gallery on the live site.
     description: `Skeleton hands hooked together on the chest. Turn around and you get the whole story — two skeletons holding each other like the world already ended and they didn't care.
