@@ -115,7 +115,7 @@ const terms: PolicyDoc = {
       body: [
         "For custom orders you send us the idea and our team draws it. By submitting artwork, text or a reference you confirm you have the right to use it and that it doesn't infringe anyone else's copyright, trademark or other rights.",
         "We can refuse any custom request without giving a reason — including anything hateful, defamatory, or infringing someone else's work. If we refuse before production, you're refunded in full.",
-        "Custom pieces are made to your brief and printed once. Please check your proof carefully before approving it.",
+        "Custom pieces are made to your brief and printed once. Because they can't be resold, they are not eligible for return or refund once production has started — check your proof carefully before approving it. If a custom piece arrives faulty or doesn't match the proof you approved, that's on us and we'll put it right. See the Refund & Cancellation Policy.",
       ],
     },
     {
@@ -260,6 +260,23 @@ const refunds: PolicyDoc = {
       heading: "Returns",
       // Verbatim from the live store. See the note at the top of this file.
       body: RETURNS_PARAS,
+    },
+    {
+      // Added on the owner's instruction, 2026-07-31. Deliberately a SEPARATE
+      // section rather than an edit to the verbatim block above: the 3-day
+      // promise is transcribed from the live store, and quietly rewriting it
+      // would leave two different versions of the same commitment in the wild.
+      //
+      // The faulty/wrong-item carve-out is not optional politeness — Indian
+      // consumer law applies to a custom piece exactly as it does to a stock
+      // one, so an unqualified "no returns on custom" would be unenforceable
+      // and would misrepresent the customer's rights.
+      heading: "What can't be returned",
+      body: [
+        "Custom designs are the one exception. A custom piece is drawn to your brief and printed once, for you — it can't be resold or restocked, so it isn't eligible for return or refund once production has started.",
+        "Please check your proof carefully before approving it. That's the point at which a custom order becomes final.",
+        "This doesn't affect your rights if something goes wrong at our end: if a custom piece arrives faulty, damaged, or not matching the proof you approved, we'll put it right at our own cost, exactly as with anything else we sell.",
+      ],
     },
     {
       heading: "Cancelling an order",
