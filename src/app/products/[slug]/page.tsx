@@ -99,14 +99,28 @@ export default async function ProductPage({ params }: Params) {
                       p.onDark ? "bg-void-deep" : "bg-panel"
                     }`}
                   >
-                    {/* Photography shot on black brings its own lighting, so it
-                        gets a dark plate and nothing else. The lit radial plate
-                        exists for garments shot on white — it would frame these
-                        in a lighter box instead of blending with them. */}
+                    {/* The lit radial plate exists for garments shot on WHITE —
+                        it gives a black tee a surface to read against. */}
                     {!p.onDark && (
                       <span
                         aria-hidden
                         className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,var(--color-panel-hi),var(--color-panel)_72%)]"
+                      />
+                    )}
+
+                    {/* Backlight, for photography already shot on black.
+                        Beneath the image, so it fills the letterbox margins
+                        either side of a portrait crop — the subject ends up
+                        standing in a pool of warm light rather than on a flat
+                        black square. Offset to 34% so it sits at head height. */}
+                    {p.onDark && (
+                      <span
+                        aria-hidden
+                        className="absolute left-1/2 top-[34%] h-[92%] w-[104%] -translate-x-1/2 -translate-y-1/2 rounded-[50%] opacity-80 blur-2xl"
+                        style={{
+                          background:
+                            "radial-gradient(circle at center, color-mix(in oklch, var(--color-flare) 30%, transparent) 0%, color-mix(in oklch, var(--color-ember) 20%, transparent) 45%, transparent 74%)",
+                        }}
                       />
                     )}
                     <Image
@@ -122,6 +136,22 @@ export default async function ProductPage({ params }: Params) {
                       sizes="(max-width: 1024px) 92vw, 46vw"
                       className="relative h-full w-full object-contain"
                     />
+
+                    {/* The bleed. Sits ON TOP with `screen`, which can only add
+                        light, never remove it — so the black tee stays black
+                        while the near-black backdrop around her lifts to a warm
+                        glow. Low opacity on purpose: `screen` is unforgiving,
+                        and anything stronger starts tinting her skin. */}
+                    {p.onDark && (
+                      <span
+                        aria-hidden
+                        className="pointer-events-none absolute left-1/2 top-[30%] h-[60%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-[50%] opacity-45 blur-2xl mix-blend-screen"
+                        style={{
+                          background:
+                            "radial-gradient(circle at center, color-mix(in oklch, var(--color-flare) 42%, transparent) 0%, transparent 70%)",
+                        }}
+                      />
+                    )}
                   </li>
                 ))}
               </ul>
