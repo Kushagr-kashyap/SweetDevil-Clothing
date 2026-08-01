@@ -92,40 +92,18 @@ export default async function ProductPage({ params }: Params) {
               style={{ ["--cut" as string]: "20px" }}
             >
               <ul className="flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain">
-                {gallery.map((src, i) => {
-                  const cutout = p.cutouts?.includes(src) ?? false;
-                  return (
+                {gallery.map((src, i) => (
                   <li
                     key={src}
                     className={`relative aspect-square w-full shrink-0 snap-center ${
-                      cutout ? "bg-void-deep" : "bg-panel"
+                      p.onDark ? "bg-void-deep" : "bg-panel"
                     }`}
                   >
-                    {cutout ? (
-                      /* Backlight. Two layers: a broad warm wash sitting behind
-                         the torso, and a tighter hotter core up where the head
-                         and shoulders are. One flat glow reads as a sticker;
-                         the offset core reads as a light source behind her.
-                         Sits at 38% height so it rims the head, not the hem. */
-                      <>
-                        <span
-                          aria-hidden
-                          className="absolute left-1/2 top-[38%] h-[78%] w-[86%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-70 blur-2xl"
-                          style={{
-                            background:
-                              "radial-gradient(circle at center, color-mix(in oklch, var(--color-flare) 38%, transparent) 0%, color-mix(in oklch, var(--color-ember) 26%, transparent) 42%, transparent 72%)",
-                          }}
-                        />
-                        <span
-                          aria-hidden
-                          className="absolute left-1/2 top-[30%] h-[42%] w-[46%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-60 blur-xl"
-                          style={{
-                            background:
-                              "radial-gradient(circle at center, color-mix(in oklch, var(--color-flare) 55%, transparent) 0%, transparent 68%)",
-                          }}
-                        />
-                      </>
-                    ) : (
+                    {/* Photography shot on black brings its own lighting, so it
+                        gets a dark plate and nothing else. The lit radial plate
+                        exists for garments shot on white — it would frame these
+                        in a lighter box instead of blending with them. */}
+                    {!p.onDark && (
                       <span
                         aria-hidden
                         className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,var(--color-panel-hi),var(--color-panel)_72%)]"
@@ -145,8 +123,7 @@ export default async function ProductPage({ params }: Params) {
                       className="relative h-full w-full object-contain"
                     />
                   </li>
-                  );
-                })}
+                ))}
               </ul>
               <Ticks />
               <span

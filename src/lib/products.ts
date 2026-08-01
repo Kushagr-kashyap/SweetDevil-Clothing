@@ -102,15 +102,19 @@ export type Product = {
   sizeChart?: string;
 
   /**
-   * Which `gallery` entries are cut out to transparency. These get a warm
-   * backlight behind them instead of the lit plate — the subject reads as
-   * rim-lit against the dark rather than sitting on a bright square.
+   * True when this product's photography is already shot on black.
    *
-   * Listed explicitly rather than inferred from the filename: a convention like
-   * "contains -model-" breaks silently the first time someone names a file
-   * differently, and the failure mode is a black garment on a black background.
+   * The default plate is a *lit* radial panel, which exists so black garments
+   * on a white studio background have a surface to read against. Photography
+   * that already carries its own dark backdrop and lighting needs the opposite:
+   * a dark plate, so the letterboxing either side of a portrait crop blends
+   * into the image instead of framing it in a lighter box.
+   *
+   * A CSS glow behind these would be invisible — the images are opaque — and
+   * layering one under a photo that already has a baked-in backlight would only
+   * fight it.
    */
-  cutouts?: string[];
+  onDark?: boolean;
 };
 
 /** The spec sheet actually shown on a product page. */
@@ -146,11 +150,9 @@ const RAW: Omit<Product, "image">[] = [
       "/products/the-lovers.png",
       "/products/the-lovers-back.png",
     ],
-    cutouts: [
-      "/products/the-lovers-model-front.png",
-      "/products/the-lovers-model-back.png",
-    ],
-    sizeChart: "/brand/size-oversized-tee.jpg",
+    onDark: true,
+    // sizeChart intentionally absent until the chart image is supplied — a
+    // missing file here would 404 in the gallery on the live site.
     description: `Skeleton hands hooked together on the chest. Turn around and you get the whole story — two skeletons holding each other like the world already ended and they didn't care.
 
 Printed on a 240 GSM premium blank, heavier than our standard tee, so the ink sits flat and the shape holds after washing.`,
