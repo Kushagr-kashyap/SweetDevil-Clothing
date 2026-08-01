@@ -102,6 +102,15 @@ export type Product = {
   sizeChart?: string;
 
   /**
+   * Fit reference for the on-body shots — the most-requested detail in online
+   * apparel, and the cheapest confidence a product page can offer. Without it
+   * "oversized" is unanswerable: oversized on whom?
+   *
+   * Per-product because the model and the size they wore change between shoots.
+   */
+  model?: { height: string; wears: string };
+
+  /**
    * Gallery images shot on black, which get a dark plate and a warm backlight.
    *
    * Everything NOT listed here gets the default lit plate — and that default
@@ -149,6 +158,7 @@ const RAW: Omit<Product, "image">[] = [
       "/products/the-lovers.png",
       "/products/the-lovers-back.png",
     ],
+    model: { height: "5'7\"", wears: "M" },
     // On-body shots only. The flat tees are cut-outs of a BLACK garment and
     // need the lit plate, or they read as a black hole with a print floating
     // in it.

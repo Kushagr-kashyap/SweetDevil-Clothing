@@ -139,21 +139,16 @@ export default async function ProductPage({ params }: Params) {
                       className="relative h-full w-full object-contain"
                     />
 
-                    {/* The bleed. Sits ON TOP with `screen`, which can only add
-                        light, never remove it — so the black tee stays black
-                        while the near-black backdrop around her lifts to a warm
-                        glow. Low opacity on purpose: `screen` is unforgiving,
-                        and anything stronger starts tinting her skin. */}
-                    {backlit && (
-                      <span
-                        aria-hidden
-                        className="pointer-events-none absolute left-1/2 top-[30%] h-[60%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-[50%] opacity-45 blur-2xl mix-blend-screen"
-                        style={{
-                          background:
-                            "radial-gradient(circle at center, color-mix(in oklch, var(--color-flare) 42%, transparent) 0%, transparent 70%)",
-                        }}
-                      />
-                    )}
+                    {/* REMOVED: a `mix-blend-screen` bleed used to sit here, on
+                        top of the image, to lift the backdrop around the
+                        subject. It intermittently rendered as an opaque wash
+                        that hid the photograph completely — a product page
+                        showing no product. Proven by hiding the layer and
+                        watching the model reappear.
+                        The pool BENEATH the image gives most of the same effect
+                        and cannot obscure anything. Do not reintroduce a blend
+                        mode over product photography: the downside is the
+                        product vanishing, the upside is a slightly nicer glow. */}
                   </li>
                   );
                 })}
@@ -171,6 +166,17 @@ export default async function ProductPage({ params }: Params) {
                 </span>
               )}
             </div>
+
+            {/* Fit reference, directly under the photos it describes — this is
+                where someone is judging "will it look like that on me?", and
+                "oversized" is unanswerable without a body to measure it
+                against. */}
+            {p.model && (
+              <p className="readout text-bone-faint mt-3">
+                model is {p.model.height} · wearing size{" "}
+                <span className="text-ember">{p.model.wears}</span>
+              </p>
+            )}
           </div>
 
           {/* ── the pitch ── */}
