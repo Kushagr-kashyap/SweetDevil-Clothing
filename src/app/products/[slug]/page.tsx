@@ -15,7 +15,6 @@ import {
   galleryFor,
   inr,
   products,
-  sku,
   specsFor,
 } from "@/lib/products";
 import { POLICIES } from "@/lib/site";
@@ -184,10 +183,13 @@ export default async function ProductPage({ params }: Params) {
               <span className="readout text-flare">−{discount(p)}% off</span>
             </div>
 
+            {/* SKU removed at the owner's request — it's an internal reference
+                and meant nothing to a customer. Order numbers are what support
+                actually needs. */}
             <div className="border-line/60 mt-4 flex items-center gap-3 border-y py-2.5">
-              <span className="readout text-bone-faint">sku {sku(p)}</span>
-              <span className="bg-line/60 h-px flex-1" />
               <span className="readout text-ember">free shipping</span>
+              <span className="bg-line/60 h-px flex-1" />
+              <span className="readout text-bone-faint">3–7 days</span>
             </div>
 
             <div className="text-bone-dim prose-body mt-6 space-y-4 text-[0.98rem]">

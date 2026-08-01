@@ -158,9 +158,7 @@ const RAW: Omit<Product, "image">[] = [
     ],
     // sizeChart intentionally absent until the chart image is supplied — a
     // missing file here would 404 in the gallery on the live site.
-    description: `Skeleton hands hooked together on the chest. Turn around and you get the whole story — two skeletons holding each other like the world already ended and they didn't care.
-
-Printed on a 240 GSM premium blank, heavier than our standard tee, so the ink sits flat and the shape holds after washing.`,
+    description: `Skeleton hands hooked together on the chest. Turn around and you get the whole story — two skeletons holding each other like the world already ended and they didn't care.`,
   },
   {
     slug: "killswitch-engage",
