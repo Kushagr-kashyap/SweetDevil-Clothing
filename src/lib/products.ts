@@ -208,6 +208,7 @@ const RAW: Omit<Product, "image">[] = [
       "/products/killswitch-engage-model-back.png",
       "/products/killswitch-engage-model-front.png",
       "/products/killswitch-engage-back.png",
+      "/products/killswitch-engage-front.png",
     ],
     // These on-body shots are genuine cut-outs, so the warm pool behind them
     // shows THROUGH the transparency and rims the subject — the effect the
