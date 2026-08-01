@@ -8,6 +8,22 @@
   "compatibility_date": "2026-07-30",
   "compatibility_flags": ["nodejs_compat"],
 
+  // ── CUTOVER, NOT YET ARMED ─────────────────────────────────────────────
+  // Uncommenting this points sweetdevil.in at this Worker and takes the domain
+  // off Wix. Do NOT do it until `wrangler secret list` shows LIVE Razorpay keys
+  // (rzp_live_...). Deploying this with test keys puts the real domain in front
+  // of a store that shows "payment successful" and collects nothing.
+  //
+  // Prerequisite: delete the Wix A records (185.230.63.*) and the www CNAME in
+  // Cloudflare DNS first — a Custom Domain can't attach over a conflicting
+  // record. Both apex and www are needed: Wix served www and 301'd the apex, so
+  // links to both forms exist in the wild.
+  //
+  // "routes": [
+  //   { "pattern": "sweetdevil.in", "custom_domain": true },
+  //   { "pattern": "www.sweetdevil.in", "custom_domain": true }
+  // ],
+
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
