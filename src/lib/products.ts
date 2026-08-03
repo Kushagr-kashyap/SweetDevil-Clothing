@@ -233,12 +233,21 @@ Not for the faint of heart — made for those who feel everything.`,
     price: 699,
     badge: "SALE",
     wixSku: "393774879898721",
+    specs: SPECS_240,
     character: "reven",
+    model: { height: "5'11\"", wears: "L" },
     // Artwork is on the back, so the back leads.
     card: "/products/satan-s-child.png",
     gallery: [
+      // Both on-body shots arrived with the transparency CHECKERBOARD baked in
+      // as real pixels — the background remover had exported its preview rather
+      // than the transparent PNG. Re-cut here by flood-filling the light region
+      // inward from the border, which removes only backdrop CONNECTED to the
+      // edge; the white print sits inside black fabric and is unreachable, so
+      // the artwork survived. A plain colour-key would have punched holes
+      // straight through "SATAN'S CHILD".
       "/products/satan-s-child-model-back.png",
-      "/products/satan-s-child-model-front.jpg",
+      "/products/satan-s-child-model-front.png",
       // The ORIGINAL flat, not the regenerated one. A newer version of this
       // image had the body copy AI-mangled into gibberish — "ALDO KNOWN AS,
       // THE ,DCVIL AND SLMETIMES SIBO DALLED FURIPERT IN CHRISTIONITY" — which
@@ -248,8 +257,12 @@ Not for the faint of heart — made for those who feel everything.`,
       "/products/satan-s-child.png",
       "/products/satan-s-child-front.png",
     ],
-    // No `backlit`: these on-body shots are opaque with WHITE backgrounds, so a
-    // glow behind them would be invisible. They take the lit plate instead.
+    // Now genuine cut-outs, so the warm pool shows THROUGH and rims the subject
+    // — the same treatment as Atlas.
+    backlit: [
+      "/products/satan-s-child-model-back.png",
+      "/products/satan-s-child-model-front.png",
+    ],
     description: `Introducing our "Satan's Child" t-shirt, a daring statement piece that exudes rebellious charm. Featuring bold lettering and captivating imagery, this tee is perfect for those who march to the beat of their own drum.
 
 Crafted with comfort in mind, it's made from premium materials to ensure both style and softness. Embrace your darker side and stand out from the crowd.`,
