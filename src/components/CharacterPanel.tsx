@@ -25,10 +25,14 @@ export default function CharacterPanel({ character }: { character: Character }) 
           <dt className="readout text-bone-faint">real name</dt>
           <dd className="text-bone-dim mt-0.5 text-[0.92rem]">{character.realName}</dd>
         </div>
-        <div>
-          <dt className="readout text-bone-faint">age</dt>
-          <dd className="text-bone-dim mt-0.5 text-[0.92rem]">{character.age}</dd>
-        </div>
+        {/* Age is optional — a character whose age wasn't supplied shows no age,
+            rather than an invented one or an empty labelled row. */}
+        {character.age !== undefined && (
+          <div>
+            <dt className="readout text-bone-faint">age</dt>
+            <dd className="text-bone-dim mt-0.5 text-[0.92rem]">{character.age}</dd>
+          </div>
+        )}
         <div className="col-span-2 sm:col-span-1">
           <dt className="readout text-bone-faint">occupation</dt>
           <dd className="text-bone-dim mt-0.5 text-[0.92rem]">{character.occupation}</dd>

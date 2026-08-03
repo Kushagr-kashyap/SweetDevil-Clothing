@@ -16,7 +16,8 @@ export type Character = {
   /** The alias, printed loud. */
   name: string;
   realName: string;
-  age: number;
+  /** Optional — omitted rather than invented when the owner hasn't given one. */
+  age?: number;
   occupation: string;
   /** One entry per rendered paragraph. */
   story: string[];
@@ -59,6 +60,26 @@ export const characters: Character[] = [
     // NOTE: no quote was supplied for Atlas, so this is lifted VERBATIM from his
     // own story rather than written. Swap it for the owner's chosen line.
     quote: "No one gets left behind\nbecause time ran out.",
+  },
+  {
+    id: "reven",
+    name: "REVEN",
+    realName: "Aarav Malhotra",
+    // age not supplied — deliberately absent rather than guessed.
+    occupation: "Architecture Student",
+    story: [
+      "When Aarav was fifteen, his school organized a trip across an old suspension bridge. Halfway across, the bridge began to collapse. Steel cables snapped. Concrete cracked beneath their feet. Panic spread instantly.",
+      "Among the students was Aarav's younger sister. For one terrifying moment, he froze.",
+      "Then he noticed something no one else did. A section of the bridge was still holding. He calculated the safest path in seconds.",
+      "Ignoring the chaos around him, Aarav sprinted through falling debris, reached his sister, and carried her across the collapsing bridge just before the remaining structure gave way. Everyone survived.",
+      "The world called it luck. Aarav knew it wasn't. In those few seconds, his mind had worked faster than ever before. It was the first time he experienced Frame Shift.",
+      "That day changed him forever. He realized that a single decision, made at the right moment, could save a life. From then on, he trained relentlessly — not to become famous, not to become powerful, but to make sure he would always be ready when someone needed help.",
+      "Years later, whenever disaster strikes, Aarav's Inner Devil awakens. His mind becomes perfectly calm. Every sound. Every movement. Every possibility. He sees them all.",
+      "While others panic, Aarav moves. Not because he's fearless. Because someone has to.",
+    ],
+    // NOTE: no quote supplied. Lifted VERBATIM from his own closing lines rather
+    // than written for him. Replace with the owner's chosen line.
+    quote: "Not because he's fearless.\nBecause someone has to.",
   },
 ];
 

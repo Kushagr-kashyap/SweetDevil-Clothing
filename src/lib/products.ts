@@ -233,6 +233,23 @@ Not for the faint of heart — made for those who feel everything.`,
     price: 699,
     badge: "SALE",
     wixSku: "393774879898721",
+    character: "reven",
+    // Artwork is on the back, so the back leads.
+    card: "/products/satan-s-child.png",
+    gallery: [
+      "/products/satan-s-child-model-back.png",
+      "/products/satan-s-child-model-front.jpg",
+      // The ORIGINAL flat, not the regenerated one. A newer version of this
+      // image had the body copy AI-mangled into gibberish — "ALDO KNOWN AS,
+      // THE ,DCVIL AND SLMETIMES SIBO DALLED FURIPERT IN CHRISTIONITY" — which
+      // would have shipped a product page advertising nonsense printed on the
+      // garment. Check the small print on any regenerated artwork before it
+      // goes near a product page.
+      "/products/satan-s-child.png",
+      "/products/satan-s-child-front.png",
+    ],
+    // No `backlit`: these on-body shots are opaque with WHITE backgrounds, so a
+    // glow behind them would be invisible. They take the lit plate instead.
     description: `Introducing our "Satan's Child" t-shirt, a daring statement piece that exudes rebellious charm. Featuring bold lettering and captivating imagery, this tee is perfect for those who march to the beat of their own drum.
 
 Crafted with comfort in mind, it's made from premium materials to ensure both style and softness. Embrace your darker side and stand out from the crowd.`,
