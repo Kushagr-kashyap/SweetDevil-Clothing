@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import ClearPaidLines from "@/components/ClearPaidLines";
 import Footer from "@/components/Footer";
 import { PageHeader, Readout } from "@/components/hud";
 import { getOrderById, parseItems } from "@/lib/orders";
@@ -37,6 +38,20 @@ export default async function OrderPage({
 
   return (
     <main>
+      {/* A redirect payment brings the customer back here without checkout's
+          success handler ever running, so this is the only place the cart gets
+          emptied on the UPI path. */}
+      {paid && (
+        <ClearPaidLines
+          lines={items.map(({ slug, size, fit, note }) => ({
+            slug,
+            size,
+            fit,
+            note,
+          }))}
+        />
+      )}
+
       <PageHeader
         code="ORD"
         meta={order.id}
