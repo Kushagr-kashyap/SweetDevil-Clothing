@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { lineId, useCart } from "@/lib/cart";
 import type { Fit, Size } from "@/lib/products";
+import { clearReward } from "@/lib/reward";
 
 /**
  * Takes the paid-for lines out of the cart when a confirmation page loads.
@@ -29,7 +30,14 @@ export type PaidLine = {
   note?: string;
 };
 
-export default function ClearPaidLines({ lines }: { lines: PaidLine[] }) {
+export default function ClearPaidLines({
+  lines,
+  rewardCode = null,
+}: {
+  lines: PaidLine[];
+  /** The reward spent on this order, if any. */
+  rewardCode?: string | null;
+}) {
   const { ready, remove } = useCart();
   // The store notifies every listener on each removal, so without this the
   // effect would re-enter mid-loop.
@@ -38,6 +46,13 @@ export default function ClearPaidLines({ lines }: { lines: PaidLine[] }) {
   useEffect(() => {
     if (!ready || done.current) return;
     done.current = true;
+
+    // The server marked this code used the moment the payment confirmed, so
+    // the copy in localStorage is already dead. Drop it for the same reason we
+    // drop the cart lines: a redirect payment runs none of checkout's
+    // JavaScript, and a spent discount left on screen is a promise the next
+    // order can't keep.
+    if (rewardCode) clearReward();
 
     for (const l of lines) {
       // null is what the database round-trip gives back; lineId's cart-side
@@ -51,7 +66,7 @@ export default function ClearPaidLines({ lines }: { lines: PaidLine[] }) {
         }),
       );
     }
-  }, [ready, lines, remove]);
+  }, [ready, lines, remove, rewardCode]);
 
   return null;
 }

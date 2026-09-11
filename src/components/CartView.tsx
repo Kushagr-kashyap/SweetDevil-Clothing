@@ -4,9 +4,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { lineId, useCart } from "@/lib/cart";
 import { bySlug, inr } from "@/lib/products";
+import { countdown, useReward } from "@/lib/reward";
+import { discountPaiseFor } from "@/lib/reward-tiers";
 
 export default function CartView() {
   const { lines, ready, count, subtotal, setQty, remove } = useCart();
+  const { reward, msLeft } = useReward();
+
+  // The SAME function the server prices with, fed the same paise. Computing it
+  // in rupees here instead would round differently and quietly show a total a
+  // few paise off what Razorpay charges.
+  const discount = reward ? discountPaiseFor(Math.round(subtotal * 100), reward.pct) / 100 : 0;
+  const total = subtotal - discount;
 
   // Until localStorage is read we can't know the cart, and guessing would cause
   // a hydration mismatch. Reserve the space instead of flashing an empty state.
@@ -167,9 +176,24 @@ export default function CartView() {
               <span className="readout text-bone-faint">shipping</span>
               <span className="readout text-ember">free</span>
             </div>
+
+            {reward && (
+              <div className="border-line/60 flex items-baseline justify-between gap-3 border-b py-2.5">
+                <span className="min-w-0">
+                  <span className="readout text-ember block">
+                    devil&apos;s aim −{reward.pct}%
+                  </span>
+                  <span className="readout text-bone-faint mt-0.5 block">
+                    {reward.code} · expires in {countdown(msLeft)}
+                  </span>
+                </span>
+                <span className="text-ember shrink-0 font-semibold">−{inr(discount)}</span>
+              </div>
+            )}
+
             <div className="flex items-baseline justify-between py-4">
               <span className="label text-bone">Total</span>
-              <span className="display text-bone text-2xl">{inr(subtotal)}</span>
+              <span className="display text-bone text-2xl">{inr(total)}</span>
             </div>
 
             <Link

@@ -8,6 +8,8 @@ import Field, { CONTROL } from "./Field";
 import { lineId, useCart } from "@/lib/cart";
 import { bySlug, inr } from "@/lib/products";
 import { validateCustomer, type CustomerErrors } from "@/lib/customer";
+import { clearReward, countdown, useReward } from "@/lib/reward";
+import { discountPaiseFor } from "@/lib/reward-tiers";
 
 /**
  * Checkout: collect the address, create the order server-side, hand off to
@@ -113,6 +115,11 @@ const EMPTY: Record<FieldName, string> = {
 export default function CheckoutForm() {
   const router = useRouter();
   const { lines, ready, count, subtotal, clear } = useCart();
+  const { reward, msLeft } = useReward();
+
+  // The SAME function the server prices with — see the note in CartView.
+  const discount = reward ? discountPaiseFor(Math.round(subtotal * 100), reward.pct) / 100 : 0;
+  const total = subtotal - discount;
 
   const [values, setValues] = useState<Record<FieldName, string>>(EMPTY);
   const [errors, setErrors] = useState<CustomerErrors>({});
@@ -156,6 +163,9 @@ export default function CheckoutForm() {
             qty: l.qty,
             note: l.note,
           })),
+          // The code only. The server reads the percentage off its own row —
+          // see the comment in the order route.
+          rewardCode: reward?.code ?? null,
         }),
       });
 
@@ -165,6 +175,8 @@ export default function CheckoutForm() {
         orderId?: string;
         razorpayOrderId?: string;
         amountPaise?: number;
+        discountPct?: number;
+        discountPaise?: number;
         keyId?: string;
         customer?: { name: string; email: string; phone: string };
       };
@@ -173,6 +185,15 @@ export default function CheckoutForm() {
         if (data.fields) setErrors(data.fields);
         setStatus(data.error ?? "Could not start the payment.");
         return;
+      }
+
+      // The server decides the discount, and its answer is already baked into
+      // the amount Razorpay is about to charge. If the 30-minute timer lapsed
+      // between the cart and this click it applies nothing — drop the local
+      // copy so the page stops advertising a discount that isn't happening.
+      if (reward && !data.discountPaise) {
+        clearReward();
+        setStatus("Your game discount expired. Continuing at the normal price.");
       }
 
       const Razorpay = await loadRazorpay();
@@ -225,6 +246,9 @@ export default function CheckoutForm() {
                 return;
               }
               clear();
+              // Spent. The server has already marked the code used; this stops
+              // the cart showing it again on the way back.
+              clearReward();
               router.push(`/order/${out.orderId}`);
             } catch {
               // The money may well have left. Never tell them to just retry.
@@ -355,7 +379,7 @@ export default function CheckoutForm() {
             className="cut bg-bone text-void label group mt-6 flex w-full items-center justify-center gap-3 py-4 disabled:opacity-60"
             style={{ ["--cut" as string]: "14px" }}
           >
-            {busy ? "Working…" : `Pay ${inr(subtotal)}`}
+            {busy ? "Working…" : `Pay ${inr(total)}`}
             {!busy && (
               <span
                 aria-hidden
@@ -427,9 +451,24 @@ export default function CheckoutForm() {
               <span className="readout text-bone-faint">shipping</span>
               <span className="readout text-ember">free</span>
             </div>
+
+            {reward && (
+              <div className="flex items-baseline justify-between gap-3 pt-2">
+                <span className="min-w-0">
+                  <span className="readout text-ember block">
+                    devil&apos;s aim −{reward.pct}%
+                  </span>
+                  <span className="readout text-bone-faint mt-0.5 block">
+                    expires in {countdown(msLeft)}
+                  </span>
+                </span>
+                <span className="text-ember shrink-0 font-semibold">−{inr(discount)}</span>
+              </div>
+            )}
+
             <div className="flex items-baseline justify-between py-3">
               <span className="label text-bone">Total</span>
-              <span className="display text-bone text-2xl">{inr(subtotal)}</span>
+              <span className="display text-bone text-2xl">{inr(total)}</span>
             </div>
 
             <Link

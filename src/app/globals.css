@@ -149,6 +149,17 @@
     font-variant-numeric: tabular-nums;
   }
 
+  /* Arcade bitmap face — the game heading only, never body copy.
+     The glyphs are already a grid, so they need tracking and a generous line
+     height or two lines of it fuse into one solid block. */
+  .pixel {
+    font-family: var(--font-pixel), ui-monospace, monospace;
+    font-weight: 400;
+    text-transform: uppercase;
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+  }
+
   .label {
     font-family: var(--font-sans), sans-serif;
     font-size: 0.7rem;
@@ -304,6 +315,13 @@
   .rise {
     animation: riseIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
     animation-delay: var(--d, 0ms);
+  }
+
+  /* Punch for a number that just changed — the game's score and reward.
+     Scale only, never opacity: under the reduced-motion rule below the
+     duration collapses to nothing, and `both` must land on a VISIBLE frame. */
+  .pop {
+    animation: popIn 0.42s cubic-bezier(0.2, 1.5, 0.4, 1) both;
   }
 
   /**
@@ -497,6 +515,15 @@
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(1.5);
+  }
+  to {
+    transform: scale(1);
   }
 }
 

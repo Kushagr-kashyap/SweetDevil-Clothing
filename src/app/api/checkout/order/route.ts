@@ -1,6 +1,7 @@
 import { validateCustomer } from "@/lib/customer";
 import { createPendingOrder, newOrderId } from "@/lib/orders";
-import { isPricingError, priceCart } from "@/lib/pricing";
+import { isPricingError, priceCart, withReward } from "@/lib/pricing";
+import { findRedeemableReward } from "@/lib/rewards";
 import {
   createOrder,
   isConfigured,
@@ -53,8 +54,25 @@ export async function POST(request: Request) {
   }
 
   // ── what it costs (server-side, always) ──
-  const priced = priceCart(payload.cart);
-  if (isPricingError(priced)) return json({ error: priced.error }, 400);
+  const base = priceCart(payload.cart);
+  if (isPricingError(base)) return json({ error: base.error }, 400);
+
+  /**
+   * ── the game discount ──
+   *
+   * The body carries a CODE, never a percentage. The percentage is read off
+   * the game_rewards row the server wrote when the round finished, so editing
+   * the request can at most name a code you already hold.
+   *
+   * An unknown, spent or expired code is silently ignored rather than
+   * rejected: the response reports the discount actually applied, and the
+   * checkout UI reconciles against that. Failing the whole order because a
+   * 30-minute timer lapsed mid-checkout would lose a sale over a discount.
+   */
+  const rewardCode =
+    typeof payload.rewardCode === "string" ? payload.rewardCode.trim().toUpperCase() : "";
+  const reward = rewardCode ? await findRedeemableReward(rewardCode) : null;
+  const priced = reward ? withReward(base, reward.pct) : base;
 
   const orderId = newOrderId();
 
@@ -77,12 +95,19 @@ export async function POST(request: Request) {
       testMode: isTestMode(),
       customer: customerResult.customer,
       lines: priced.lines,
+      rewardCode: reward?.code ?? null,
+      discountPaise: priced.discountPaise,
     });
 
     return json({
       orderId,
       razorpayOrderId: rzpOrder.id,
       amountPaise: priced.totalPaise,
+      // Echoed back so checkout shows the discount that was actually applied,
+      // not the one the browser hoped for.
+      subtotalPaise: priced.subtotalPaise,
+      discountPct: priced.discountPct,
+      discountPaise: priced.discountPaise,
       currency: "INR",
       keyId: publicKeyId(), // public by design — the checkout widget needs it
       testMode: isTestMode(),

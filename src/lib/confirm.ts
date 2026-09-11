@@ -1,6 +1,8 @@
 import "server-only";
+import { after } from "next/server";
 import { getOrderByRazorpayOrderId, markOrderFailed, markOrderPaid } from "./orders";
 import { verifyPaymentSignature } from "./razorpay";
+import { markRewardUsed } from "./rewards";
 
 /**
  * Confirming a payment, in one place.
@@ -58,6 +60,30 @@ export async function confirmPayment(input: {
     razorpayOrderId: input.razorpayOrderId,
     razorpayPaymentId: input.razorpayPaymentId,
   });
+
+  if (updated) {
+    // Spend the game reward HERE, not when the order was created. An abandoned
+    // checkout must leave the code still winnable — burning it at order
+    // creation would take the discount away from someone who never paid.
+    //
+    // Gated on `updated`: the UPDATE behind markOrderPaid matches only a row
+    // still pending with no payment id, so only the call that actually flips
+    // the row spends the code.
+    if (order.reward_code) {
+      const code = order.reward_code;
+      after(async () => {
+        try {
+          const spent = await markRewardUsed(code, order.id);
+          // Already spent means the customer got the discount twice across two
+          // orders. They have paid the discounted amount either way, so this is
+          // a note to reconcile, never a reason to fail a confirmed payment.
+          if (!spent) console.warn("reward already spent", { code, orderId: order.id });
+        } catch (err) {
+          console.error("reward: could not mark used", { code, orderId: order.id }, err);
+        }
+      });
+    }
+  }
 
   // Not updated + already paid = another path got here first. That's success,
   // not a failure — say so, or the customer sees an error over a real payment.

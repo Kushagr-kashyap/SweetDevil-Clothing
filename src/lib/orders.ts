@@ -42,6 +42,9 @@ export type OrderRow = {
   pincode: string;
   items_json: string;
   notes: string | null;
+  /** Devil's Aim reward spent on this order, and what it took off. */
+  reward_code: string | null;
+  discount_paise: number;
 };
 
 const db = () => getCloudflareContext().env.DB;
@@ -71,14 +74,19 @@ export async function createPendingOrder(input: {
   testMode: boolean;
   customer: Customer;
   lines: PricedLine[];
+  /** Reward spent on this order. Recorded now, but not marked used until the
+      payment actually succeeds — see confirmPayment(). */
+  rewardCode?: string | null;
+  discountPaise?: number;
 }): Promise<void> {
   await db()
     .prepare(
       `INSERT INTO orders (
          id, created_at, razorpay_order_id, status, amount_paise, currency,
          test_mode, customer_name, customer_email, customer_phone,
-         address_line, city, state, pincode, items_json
-       ) VALUES (?1, ?2, ?3, 'pending', ?4, 'INR', ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)`,
+         address_line, city, state, pincode, items_json,
+         reward_code, discount_paise
+       ) VALUES (?1, ?2, ?3, 'pending', ?4, 'INR', ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)`,
     )
     .bind(
       input.id,
@@ -94,6 +102,8 @@ export async function createPendingOrder(input: {
       input.customer.state,
       input.customer.pincode,
       JSON.stringify(input.lines),
+      input.rewardCode ?? null,
+      input.discountPaise ?? 0,
     )
     .run();
 }

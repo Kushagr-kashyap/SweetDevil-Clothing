@@ -49,6 +49,7 @@ export default async function OrderPage({
             fit,
             note,
           }))}
+          rewardCode={order.reward_code}
         />
       )}
 
@@ -150,6 +151,22 @@ export default async function OrderPage({
                 </li>
               ))}
             </ul>
+
+            {order.discount_paise > 0 && (
+              <div className="border-line/60 flex items-baseline justify-between gap-3 border-t py-2.5">
+                <span className="min-w-0">
+                  <span className="readout text-ember block">devil&apos;s aim discount</span>
+                  {order.reward_code && (
+                    <span className="readout text-bone-faint mt-0.5 block">
+                      {order.reward_code}
+                    </span>
+                  )}
+                </span>
+                <span className="text-ember shrink-0 font-semibold">
+                  −{formatPaise(order.discount_paise)}
+                </span>
+              </div>
+            )}
 
             <div className="flex items-baseline justify-between py-4">
               <span className="label text-bone">

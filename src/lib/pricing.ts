@@ -1,4 +1,5 @@
 import { bySlug, FITS, SIZES, type Fit, type Size } from "./products";
+import { discountPaiseFor, MAX_PCT } from "./reward-tiers";
 
 /**
  * The single source of truth for what an order costs.
@@ -44,6 +45,9 @@ export type PricedCart = {
   subtotalPaise: number;
   /** Free across India — kept explicit so the total is auditable, not implied. */
   shippingPaise: number;
+  /** 0 unless a Devil's Aim reward was redeemed. See withReward(). */
+  discountPct: number;
+  discountPaise: number;
   totalPaise: number;
 };
 
@@ -140,7 +144,35 @@ export function priceCart(incoming: unknown): PricedCart | PricingError {
   if (totalPaise <= 0) return { error: "Order total must be greater than zero." };
   if (totalPaise > MAX_TOTAL_PAISE) return { error: "Order total is too large." };
 
-  return { lines, subtotalPaise, shippingPaise, totalPaise };
+  return { lines, subtotalPaise, shippingPaise, discountPct: 0, discountPaise: 0, totalPaise };
+}
+
+/**
+ * Applies a discount won in "Devil's Aim" to an already-priced cart.
+ *
+ * Kept separate from priceCart() so that function stays pure and synchronous:
+ * the percentage comes from a database row, and threading an `await` through
+ * the one place that decides what things cost is how a pricing bug hides.
+ *
+ * `pct` must come from the game_rewards row, never from the request. It is
+ * clamped again here anyway — this is the last code that touches the number
+ * before it becomes a charge, so it re-checks rather than assuming its caller
+ * did.
+ */
+export function withReward(cart: PricedCart, pct: number): PricedCart {
+  const safePct = Math.min(Math.max(Math.floor(pct), 0), MAX_PCT);
+  if (safePct <= 0) return cart;
+
+  // Subtract the DISCOUNT rather than rounding the total, so
+  // subtotal − discount === total exactly and the three numbers on a
+  // confirmation email always add up.
+  const discountPaise = discountPaiseFor(cart.subtotalPaise, safePct);
+  return {
+    ...cart,
+    discountPct: safePct,
+    discountPaise,
+    totalPaise: cart.subtotalPaise - discountPaise + cart.shippingPaise,
+  };
 }
 
 /** For emails and the dashboard, where rupees are what a human wants to read. */

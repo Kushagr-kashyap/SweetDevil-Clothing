@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo, Archivo_Black, Azeret_Mono } from "next/font/google";
+import { Archivo, Archivo_Black, Azeret_Mono, Press_Start_2P } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import Chassis from "@/components/Chassis";
@@ -22,6 +22,22 @@ const archivo = Archivo({
 const azeret = Azeret_Mono({
   variable: "--font-azeret",
   weight: ["400", "500"],
+  subsets: ["latin"],
+  display: "swap",
+});
+
+/**
+ * Arcade bitmap face, for the game heading and nothing else.
+ *
+ * The game strip sits between two product sections and was reading as more
+ * merchandising; a font nobody uses for selling t-shirts is the fastest way to
+ * signal "this is a game". Self-hosted at build time like the others, so it
+ * costs no third-party request. Keep it off the rest of the site — its value
+ * is entirely in being the exception.
+ */
+const pressStart = Press_Start_2P({
+  variable: "--font-pixel",
+  weight: "400",
   subsets: ["latin"],
   display: "swap",
 });
@@ -53,7 +69,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${archivoBlack.variable} ${archivo.variable} ${azeret.variable}`}
+      className={`${archivoBlack.variable} ${archivo.variable} ${azeret.variable} ${pressStart.variable}`}
     >
       {/* no bg-* utility here — it would paint over the .page-heat layer */}
       <body className="grain scanlines text-bone min-h-screen">
