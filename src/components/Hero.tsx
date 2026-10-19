@@ -71,7 +71,7 @@ export default function Hero() {
       {/* ── the subject ── */}
       <div
         style={at(300, { "--cut": "20px" })}
-        className="rise chassis cut-4 relative mt-9 aspect-[4/5] w-full overflow-hidden sm:aspect-[16/11] md:mt-12"
+        className="rise chassis cut-4 relative mt-9 aspect-square w-full overflow-hidden sm:aspect-[16/11] md:mt-12"
       >
         <div className="absolute inset-px overflow-hidden">
           <FireBackdrop className="scale-110 opacity-70" />
@@ -87,7 +87,14 @@ export default function Hero() {
             priority
             // without this the LCP image is fetched at the top breakpoint (3840w)
             sizes="(max-width: 640px) 100vw, 60vw"
-            className="absolute left-1/2 top-1/2 h-[105%] w-auto max-w-none -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-[0_0_40px_rgba(255,60,30,0.35)]"
+            /* 131% on a phone, 105% from `sm` up — and those are the same
+               picture. The plate went from 4/5 to square, which is 0.8x the
+               height, so the image is scaled by 1/0.8 to land at exactly the
+               size it was before: 1.31 x the plate width either way. The devil
+               does not get smaller; the empty sky above and below him is what
+               gets cut. Change one of these numbers without the other and he
+               shrinks instead. */
+            className="absolute left-1/2 top-1/2 h-[131%] w-auto max-w-none -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-[0_0_40px_rgba(255,60,30,0.35)] sm:h-[105%]"
           />
 
           <span

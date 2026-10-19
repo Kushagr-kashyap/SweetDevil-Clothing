@@ -160,7 +160,9 @@ export default async function SearchPage({
               {collections.map((c) => (
                 <Link
                   key={c.id}
-                  href={c.id === "custom" ? "/custom" : `/products#${c.id}`}
+                  /* Every collection now has a real page of its own, so this
+                     points at it rather than an anchor on the catalogue. */
+                  href={`/collections/${c.id}`}
                   className="chassis cut label text-bone-dim hover:text-bone inline-flex min-h-11 items-center px-4 transition-colors"
                   style={{ ["--cut" as string]: "12px" }}
                 >

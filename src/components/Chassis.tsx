@@ -22,7 +22,6 @@ import { collections } from "@/lib/products";
 const NAV = [
   { label: "Home", href: "/" },
   { label: "All Products", href: "/products" },
-  { label: "Custom Designs", href: "/custom" },
   { label: "About", href: "/about" },
   { label: "Contact Us", href: "/contact" },
 ];

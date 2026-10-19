@@ -6,42 +6,43 @@ import Marquee from "@/components/Marquee";
 import Footer from "@/components/Footer";
 import Reveal from "@/components/Reveal";
 import { PageHeader, Readout, Ticks } from "@/components/hud";
-import { collections } from "@/lib/products";
+import { collections, inr, products } from "@/lib/products";
 import { CONTACT } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "About — Sweet Devil",
   description:
-    "Sweet Devil started with two best friends who couldn't find a t-shirt that met their standards. So they printed their own. Made in New Delhi.",
+    "Every Sweet Devil design is drawn by us, printed in a small run, and never made again. Original artwork, heavyweight cotton, sold only here. Made in New Delhi.",
 };
 
 /**
- * One line per collection, shown on /about.
+ * One line per collection.
  *
- * The Devil's Club and Custom lines are verbatim from the live store. The
- * Minimalist and Winter lines are NOT — they replaced Brainrot Club and
- * Limited Edition on 2026-10-16 and have no live-store copy to transcribe, so
- * they are drafts and the owner should rewrite them in his own voice.
+ * DRAFT COPY — not the owner's words. Written 2026-10-19 so the cards are not
+ * blank; worth rewriting in his voice when he has a minute.
  */
 const CLUB_NOTES: Record<string, string> = {
   "devils-club":
-    "The loud one. Band-grade artwork, heavy ink, the kind of print people stop you about at a gig.",
+    "Full comic covers across the back. Painted scenes, hand-drawn lettering, a story you can read in two seconds.",
   minimalist:
-    "The quiet one. Just the wordmark, across every cut and colourway we make it in.",
+    "The wordmark and nothing else. Boxy, waffle, ringer — pick the garment, pick the colour.",
   winter:
-    "The warm one. Hoodies and heavy knits, built for the two months a year Delhi admits it is cold.",
-  custom:
-    "The personal one. You send the idea, our team draws it, and it gets printed exactly once.",
+    "Hoodies and heavy knits, cut for the weeks Delhi finally admits it is cold.",
 };
 
 export default function AboutPage() {
+  /* Read off the catalogue rather than typed in: the page used to claim
+     "₹699 — ₹1,599" long after both ends had moved. */
+  const prices = products.map((p) => p.price);
+  const range = `${inr(Math.min(...prices))} — ${inr(Math.max(...prices))}`;
+
   return (
     <main>
       <PageHeader
         code="ABT"
         meta="est. 2024 · new delhi"
-        lines={["Two friends,", "one bad idea."]}
-        blurb="Sweet Devil exists because we couldn't buy the t-shirt we wanted. So we printed it, and then we printed a lot more."
+        lines={["Nobody else", "makes this."]}
+        blurb="Every design on this site was drawn by us, printed in a small run, and never made again. You won't find it anywhere else — because it doesn't exist anywhere else."
       />
 
       {/* ── the mascot, given room ── */}
@@ -83,25 +84,39 @@ export default function AboutPage() {
 
             <Reveal>
               <h2 className="display text-bone text-[length:var(--step-2)]">
-                It started as a complaint
+                We draw it. We print it. Then we stop.
               </h2>
               <div className="text-bone-dim prose-body mt-4 space-y-4 text-[0.98rem]">
                 <p>
-                  Sweet Devil was started by two best friends who kept running
-                  into the same problem: they couldn&apos;t find a t-shirt that
-                  actually met their standards. Graphics they liked came on
-                  cheap blanks. Blanks they liked came with nothing worth
-                  wearing on them.
+                  Sweet Devil didn&apos;t start as a business. It started because
+                  we wanted a t-shirt that didn&apos;t exist, and it was obvious
+                  nobody was going to make it for us.
                 </p>
                 <p>
-                  So they stopped looking and started printing. The first run was
-                  for themselves. The second was because people kept asking where
-                  the first one came from.
+                  So we learned to draw. Every cover, every wordmark, every line
+                  of lettering on every garment here was made by us, for this,
+                  and for nowhere else. We don&apos;t buy artwork off a
+                  marketplace. We don&apos;t print what somebody else already
+                  sold. There is no catalogue to order from — if it&apos;s on
+                  this site, it exists because somebody sat down and drew it.
                 </p>
                 <p>
-                  Everything still gets made the same way — heavyweight cotton,
-                  oversized cuts, artwork printed big and loud, in runs small
-                  enough that you won&apos;t see yourself walking down the street.
+                  Then we got just as stubborn about what it gets printed on.
+                  Heavyweight cotton, oversized and boxy cuts, ink laid down
+                  thick enough to outlive the shirt. You can feel the weight the
+                  second you pick one up — that part is not an accident, and it
+                  is not cheap.
+                </p>
+                <p>
+                  Runs are small on purpose and nothing comes back. When a design
+                  sells out it is finished: no second edition, no restock, no
+                  quiet version of it on some other website six months later. You
+                  will not walk past someone wearing yours.
+                </p>
+                <p className="text-bone">
+                  This is not a side project. Every hour we have goes into it.
+                  We would rather two hundred people own something nobody else
+                  can get than sell the same shirt to a hundred thousand.
                 </p>
               </div>
             </Reveal>
@@ -113,8 +128,9 @@ export default function AboutPage() {
             </p>
             <Readout label="founded" value="2024" />
             <Readout label="based in" value="new delhi" />
-            <Readout label="fits" value="oversized" />
-            <Readout label="range" value="₹699 — ₹1,599" />
+            <Readout label="artwork" value="drawn in-house" hot />
+            <Readout label="fits" value="oversized · boxy" />
+            <Readout label="range" value={range} />
             <Readout label="restocks" value="never" hot />
             <a
               href={`mailto:${CONTACT.email}`}
@@ -127,17 +143,17 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <Marquee text="Unleash your inner devil" duration={30} />
+      <Marquee text="Drawn here. Printed once. Never again." duration={30} />
 
       <Manifesto />
 
-      {/* ── the clubs ── */}
+      {/* ── the collections ── */}
       <section className="px-[max(1.25rem,5vw)] pb-16">
         <div className="border-line/60 mb-8 flex items-center gap-3 border-b pb-3">
           <span className="readout text-ember">CLB</span>
           <span className="bg-line/60 h-px flex-1" />
           <span className="readout text-bone-faint">
-            {String(collections.length).padStart(2, "0")} clubs
+            {String(collections.length).padStart(2, "0")} collections
           </span>
         </div>
 
@@ -156,7 +172,7 @@ export default function AboutPage() {
                 {CLUB_NOTES[c.id]}
               </p>
               <Link
-                href={c.id === "custom" ? "/custom" : `/products#${c.id}`}
+                href={`/collections/${c.id}`}
                 className="label text-bone-dim hover:text-ember mt-3 inline-flex min-h-11 items-center gap-2 transition-colors"
               >
                 Browse

@@ -149,6 +149,13 @@ export type CollectionId =
   | "devils-club"
   | "minimalist"
   | "winter"
+  /**
+   * Retired from the storefront on 2026-10-19 at the owner's request — the
+   * made-to-order flow was work for him and a decision for the customer. The
+   * id survives because `needsBrief` and the design-brief field are still typed
+   * against it through pricing, checkout and the Razorpay webhook; only the
+   * products and the pages are gone.
+   */
   | "custom";
 
 /**
@@ -959,38 +966,6 @@ Full back of a 360 GSM hood. Heavy fleece, brushed soft inside, boxy and oversiz
     card: "/products/loud-sinners-club-back.png",
     gallery: ["/products/loud-sinners-club-back.png", "/products/loud-sinners-club.png"],
   },
-
-  // ── Custom Designs ──────────────────────────────────────────────────────
-  {
-    slug: "front",
-    name: "Front",
-    collection: "custom",
-    mrp: 1599,
-    price: 999,
-    badge: "EXCLUSIVE",
-    needsBrief: true,
-    description: `Your design across the front of the tee. Send us the idea and our team draws 2–3 concepts, you pick one, and we print it once.`,
-  },
-  {
-    slug: "back",
-    name: "Back",
-    collection: "custom",
-    mrp: 1599,
-    price: 999,
-    badge: "EXCLUSIVE",
-    needsBrief: true,
-    description: `Your design across the back of the tee. Send us the idea and our team draws 2–3 concepts, you pick one, and we print it once.`,
-  },
-  {
-    slug: "front-back",
-    name: "Front & Back",
-    collection: "custom",
-    mrp: 1999,
-    price: 1099,
-    badge: "EXCLUSIVE",
-    needsBrief: true,
-    description: `Your design across both sides of the tee. Send us the idea and our team draws 2–3 concepts, you pick one, and we print it once.`,
-  },
 ];
 
 export const products: Product[] = RAW.map((p) => ({
@@ -1026,12 +1001,6 @@ export const collections: Collection[] = [
     name: "Winter Collection",
     code: "WTR",
     blurb: "Hoodies and heavy knits for when it finally turns.",
-  },
-  {
-    id: "custom",
-    name: "Custom Designs",
-    code: "CST",
-    blurb: "Your idea, drawn by our team, printed once.",
   },
 ];
 

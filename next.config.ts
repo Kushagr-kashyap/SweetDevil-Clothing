@@ -112,11 +112,41 @@ const nextConfig: NextConfig = {
    * page would make them start over.
    */
   redirects() {
-    return RETIRED_TEE_SLUGS.map((slug) => ({
-      source: `/products/${slug}`,
-      destination: "/products",
-      permanent: true,
-    }));
+    return [
+      ...RETIRED_TEE_SLUGS.map((slug) => ({
+        source: `/products/${slug}`,
+        destination: "/products",
+        permanent: true,
+      })),
+
+      /**
+       * Wix leftovers. These are not hypothetical: a search for the store still
+       * returns https://www.sweetdevil.in/product-page/chair as a live result,
+       * and every one of those URLs was 404ing. Anyone arriving from Google, an
+       * old Instagram link or a saved bookmark hit a dead page.
+       *
+       * /product-page/<slug> keeps the slug, so a tee that still exists lands on
+       * its own page and a retired one chains through the table above to the
+       * catalogue. /shop and /category/* were Wix's own store paths.
+       */
+      { source: "/product-page/:slug", destination: "/products/:slug", permanent: true },
+      { source: "/shop", destination: "/products", permanent: true },
+      { source: "/category/:path*", destination: "/products", permanent: true },
+
+      /**
+       * The made-to-order page, retired 2026-10-19. It was linked from the nav,
+       * the footer and the catalogue for months, so anyone holding that link
+       * gets the shop rather than a dead page.
+       */
+      { source: "/custom", destination: "/products", permanent: true },
+
+      /**
+       * The bare parent of the collection route. Someone who trims
+       * /collections/boxy back to /collections is asking to see everything,
+       * and that is what /products is.
+       */
+      { source: "/collections", destination: "/products", permanent: true },
+    ];
   },
 };
 

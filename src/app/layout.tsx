@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://sweetdevil.in"),
   title: "Sweet Devil — Unleash your inner devil",
   description:
-    "Oversized graphic tees for the ones who run a little hotter. Devil's Club, Brainrot Club, limited drops and one-off custom designs. Made in India.",
+    "Oversized graphic tees for the ones who run a little hotter. Devil's Club comic covers, the Minimalist wordmark line, winter knits and one-off custom designs. Made in India.",
   openGraph: {
     title: "Sweet Devil — Unleash your inner devil",
     description:

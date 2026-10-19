@@ -1,7 +1,19 @@
 import Reveal from "./Reveal";
 
 const LINE =
-  "Some run cold. You run hot. Sweet Devil is for the loud ones, the unserious ones, the ones who'd rather be a little bad than boring.";
+  "Every design here was drawn by us. Printed once. Never run again. No catalogue, no copies, no restocks — what you wear, nobody else can get.";
+
+/**
+ * The words that land in ember.
+ *
+ * An explicit set, not a regex over the copy. The previous version matched
+ * /devil|bad|hot/ and the emphasis moved on its own whenever a word was
+ * changed; here the four load-bearing words are chosen with the sentence —
+ * who made it, how many exist, whether it returns, and who else can have it.
+ */
+const HOT = new Set(["us", "once", "never", "nobody"]);
+
+const bare = (w: string) => w.toLowerCase().replace(/[^a-z]/g, "");
 
 /**
  * Words fade up in sequence when the paragraph enters view. The stagger is CSS
@@ -27,7 +39,7 @@ export default function Manifesto() {
           <span
             key={i}
             style={{ ["--i" as string]: i }}
-            className={/devil|bad|hot/i.test(w) ? "text-ember" : "text-bone"}
+            className={HOT.has(bare(w)) ? "text-ember" : "text-bone"}
           >
             {w}
           </span>

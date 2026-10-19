@@ -15,7 +15,8 @@ export default function Footer() {
               <span className="readout text-ember">join the cult</span>
             </div>
             <p className="text-bone-dim prose-body text-[0.95rem]">
-              Drops sell out. Get first dibs, secret discounts, and zero spam.
+              Runs are small and nothing is reprinted. Hear about new designs
+              first, and nothing else.
             </p>
             <form
               className="mt-4 flex max-w-sm items-stretch gap-2"
@@ -52,7 +53,6 @@ export default function Footer() {
             </p>
             <ul>
               {collections
-                .filter((c) => c.id !== "custom")
                 .map((c) => (
                   <li key={c.id}>
                     <Link
@@ -69,14 +69,6 @@ export default function Footer() {
                   className="text-bone-dim hover:text-ember flex min-h-11 items-center text-[0.95rem] transition-colors"
                 >
                   All products
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/custom"
-                  className="text-bone-dim hover:text-ember flex min-h-11 items-center text-[0.95rem] transition-colors"
-                >
-                  Custom designs
                 </Link>
               </li>
             </ul>
