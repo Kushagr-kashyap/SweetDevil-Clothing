@@ -77,12 +77,27 @@ const nextConfig: NextConfig = {
 
   images: {
     /**
-     * Next 16 narrowed the default to `[75]`, and anything else now 400s from
-     * the optimiser. 90 is here for the product-gallery lightbox, which exists
-     * to let someone zoom into the print — the one place on the site where
-     * compression artefacts are the thing being looked at. Everything else
-     * still asks for the default 75.
+     * Resized at BUILD time, not on request.
+     *
+     * OpenNext puts this site on Cloudflare Workers, and that runtime has no
+     * image optimiser. /_next/image does not fail — it answers 200 and returns
+     * the original bytes, which is worse, because nothing looks broken.
+     * Measured against the live deploy of 2026-10-19: asking for fearless.png
+     * at w=640 returned 2,737,944 bytes of image/png, the whole 2.61 MB file.
+     * One visit to /products came to 68.5 MB, about 55 seconds on decent
+     * Indian 4G and four and a half minutes on weak.
+     *
+     * Cloudflare will do it properly for money (Images, or Polish on Pro).
+     * This site has to cost nothing, so scripts/optimise-images.mjs writes a
+     * WebP ladder at build time and this loader points at it. Same 37 cards:
+     * 68.5 MB to 0.75 MB, 92x smaller.
+     *
+     * qualities is still declared because the loader ignores it but Next
+     * validates the prop before the loader ever runs, and the lightbox asks
+     * for 90.
      */
+    loader: "custom",
+    loaderFile: "./src/lib/image-loader.ts",
     qualities: [75, 90],
   },
 
