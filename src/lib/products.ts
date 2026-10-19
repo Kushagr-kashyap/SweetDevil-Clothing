@@ -473,9 +473,10 @@ const CHART_BY_SPEC = new Map<string, SizeChartId>(
       [SPECS_240_WAFFLE, "waffle-full-sleeve"],
       [SPECS_360_HOODIE, "boxy-hoodie"],
       [SPECS_360_ZIP, "zip-hoodie"],
-      // SPECS_240_WAFFLE_BOXY is deliberately absent: the supplier has sent no
-      // chart for the half-sleeve waffle, and the boxy tee's figures describe a
-      // different garment. Showing nothing beats showing numbers we invented.
+      // Confirmed by the owner, 2026-10-19: the half-sleeve waffle is cut on
+      // the boxy tee body and the supplier measures it off the same chart.
+      // Only the cloth differs, and cloth is not a measurement.
+      [SPECS_240_WAFFLE_BOXY, "boxy-tee"],
     ] as const
   ).map(([specs, id]) => [specs.join("|"), id]),
 );
