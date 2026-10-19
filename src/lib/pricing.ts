@@ -1,4 +1,4 @@
-import { bySlug, FITS, SIZES, type Fit, type Size } from "./products";
+import { bySlug, fitsFor, SIZES, type Fit, type Size } from "./products";
 import { discountPaiseFor, MAX_PCT } from "./reward-tiers";
 
 /**
@@ -101,13 +101,19 @@ export function priceCart(incoming: unknown): PricedCart | PricingError {
           : undefined;
     if (size === undefined) return { error: "Unknown size." };
 
+    /* Checked against THIS product's fits, not the global vocabulary: a boxy
+       tee is not made in oversized, and the server should say so rather than
+       take the order and leave it for the print room to discover. */
+    const allowed = fitsFor(product);
     const fit =
       l.fit === undefined || l.fit === null
         ? null
-        : FITS.includes(l.fit as Fit)
+        : allowed.includes(l.fit as Fit)
           ? (l.fit as Fit)
           : undefined;
-    if (fit === undefined) return { error: "Unknown fit." };
+    if (fit === undefined) {
+      return { error: `${product.name} does not come in that fit.` };
+    }
 
     if (!size || !fit) return { error: `Pick a size and fit for ${product.name}.` };
 

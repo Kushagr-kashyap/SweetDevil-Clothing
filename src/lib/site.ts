@@ -30,8 +30,8 @@ export const CONTACT = {
  * they're shown on every product page.
  */
 export const POLICIES = {
-  shipping: `Orders placed with us are typically processed within 1–3 business days. Once processed, delivery will be done in approximately 3–7 business days. We offer free shipping. You will receive a shipping confirmation email with tracking information once your order ships.`,
-  returns: `You have 3 days to return an item from the date you received it. To be eligible for a return, your item must be unused and in the same condition that you received it. It must also be in the original packaging.
+  shipping: `Orders placed with us are typically processed within 1–3 business days. Once processed, delivery is usually completed within 7 business days. We offer free shipping. You will receive a shipping confirmation email with tracking information once your order ships.`,
+  returns: `You have 6 days to return an item from the date you received it. To be eligible for a return, your item must be unused and in the same condition that you received it. It must also be in the original packaging.
 
 To initiate a return, please contact our customer service team at the email address mentioned. Once we receive your item, we will inspect it and notify you that we have received your returned item. We will immediately notify you on the status of your refund after inspecting the item.
 

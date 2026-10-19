@@ -211,7 +211,7 @@ export default function CartView() {
             </Link>
 
             <p className="readout text-bone-faint mt-4 leading-relaxed">
-              free shipping · delivered in 3–7 business days
+              free shipping · delivered within 7 business days
             </p>
 
             <Link

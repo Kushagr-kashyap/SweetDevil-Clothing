@@ -317,7 +317,7 @@ const shipping: PolicyDoc = {
   lines: ["Shipping", "policy"],
   blurb: "Free across India. Here's how long it takes and how to track it.",
   description:
-    "Sweet Devil's shipping policy — free delivery across India, 1–3 business days to process and 3–7 to deliver, with tracking.",
+    "Sweet Devil's shipping policy — free delivery across India, 1–3 business days to process and delivery within 7, with tracking.",
   sections: [
     {
       heading: "Processing and delivery",

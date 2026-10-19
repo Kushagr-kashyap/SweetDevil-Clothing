@@ -6,17 +6,9 @@ import BuyBox from "@/components/BuyBox";
 import Lightbox from "@/components/Lightbox";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
+import SizeChart from "@/components/SizeChart";
 import { Ticks } from "@/components/hud";
-import {
-  bySlug,
-  collections,
-  discount,
-  galleryFor,
-  inr,
-  PHOTO_SIZE,
-  products,
-  specsFor,
-} from "@/lib/products";
+import { bySlug, collections, discount, galleryFor, inr, PHOTO_SIZE, products, sizeChartFor, specsFor } from "@/lib/products";
 import { POLICIES } from "@/lib/site";
 
 export function generateStaticParams() {
@@ -48,6 +40,7 @@ export default async function ProductPage({ params }: Params) {
   if (!p) notFound();
 
   const collection = collections.find((c) => c.id === p.collection);
+  const sizeChart = sizeChartFor(p);
   const related = products
     .filter((r) => r.collection === p.collection && r.slug !== p.slug)
     .slice(0, 4);
@@ -56,8 +49,47 @@ export default async function ProductPage({ params }: Params) {
   // mistaken for the hero shot or used as the OG image.
   const gallery = p.sizeChart ? [...galleryFor(p), p.sizeChart] : galleryFor(p);
 
+  /**
+   * Structured data, so a search result can carry the price and the words
+   * "In stock" instead of just a blue link.
+   *
+   * Built from the same catalogue the page renders, never typed twice — a
+   * price in here that disagrees with the price on the page is the kind of
+   * thing Google penalises and a customer screenshots.
+   *
+   * No `aggregateRating`: the shop has no reviews yet, and inventing one is
+   * both a lie to the customer and a manual action waiting to happen.
+   */
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: p.name,
+    description: p.description.split("\n\n")[0],
+    image: galleryFor(p).map((src) => `https://sweetdevil.in${src}`),
+    brand: { "@type": "Brand", name: "Sweet Devil" },
+    category: collections.find((c) => c.id === p.collection)?.name,
+    offers: {
+      "@type": "Offer",
+      url: `https://sweetdevil.in/products/${p.slug}`,
+      priceCurrency: "INR",
+      price: String(p.price),
+      availability: "https://schema.org/InStock",
+      itemCondition: "https://schema.org/NewCondition",
+      seller: { "@type": "Organization", name: "Sweet Devil" },
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: { "@type": "MonetaryAmount", value: "0", currency: "INR" },
+        shippingDestination: { "@type": "DefinedRegion", addressCountry: "IN" },
+      },
+    },
+  };
+
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="px-[max(1.25rem,5vw)] pt-24 md:pt-28">
         {/* breadcrumb */}
         <nav
@@ -206,7 +238,7 @@ export default async function ProductPage({ params }: Params) {
             <div className="border-line/60 mt-4 flex items-center gap-3 border-y py-2.5">
               <span className="readout text-ember">free shipping</span>
               <span className="bg-line/60 h-px flex-1" />
-              <span className="readout text-bone-faint">3–7 days</span>
+              <span className="readout text-bone-faint">within 7 days</span>
             </div>
 
             <div className="text-bone-dim prose-body mt-6 space-y-4 text-[0.98rem]">
@@ -231,6 +263,14 @@ export default async function ProductPage({ params }: Params) {
                   ))}
                 </ul>
               </Panel>
+
+              {/* Only when the supplier has actually sent figures for this
+                  garment — an invented size chart is worse than none. */}
+              {sizeChart && (
+                <Panel title="Size chart">
+                  <SizeChart chart={sizeChart} />
+                </Panel>
+              )}
 
               <Panel title="Shipping">
                 <p className="text-bone-dim prose-body text-[0.95rem]">

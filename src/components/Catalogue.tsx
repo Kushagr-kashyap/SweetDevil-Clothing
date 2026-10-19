@@ -80,14 +80,25 @@ const WIDE_SIZES = "(max-width: 640px) 70vw, (max-width: 1024px) 46vw, 27vw";
 const NARROW = "w-[45vw] md:w-[31vw] lg:w-[19vw]";
 const NARROW_SIZES = "(max-width: 768px) 45vw, (max-width: 1024px) 31vw, 19vw";
 
-/** Heading that opens the group's own page. */
+/**
+ * Heading that opens the group's own page.
+ *
+ * `flex w-full`, never `inline-flex`. An inline-flex shrinks to fit its text,
+ * and SectionHead draws a rule that grows to fill whatever width it is given —
+ * so wrapping the heading in one made the rule as long as the title and no
+ * longer. "Devil's Club" got a short line, "Winter Collection" a long one, and
+ * the sections stopped lining up with each other.
+ */
 function GroupLink({ id, children }: { id: string; children: React.ReactNode }) {
   return (
-    <Link href={`/collections/${id}`} className="group/h inline-flex items-baseline gap-2">
-      {children}
+    <Link
+      href={`/collections/${id}`}
+      className="group/h flex w-full items-baseline gap-2"
+    >
+      <span className="min-w-0 flex-1">{children}</span>
       <span
         aria-hidden
-        className="text-bone-faint group-hover/h:text-ember transition-all duration-300 group-hover/h:translate-x-0.5"
+        className="text-bone-faint group-hover/h:text-ember shrink-0 transition-all duration-300 group-hover/h:translate-x-0.5"
       >
         →
       </span>

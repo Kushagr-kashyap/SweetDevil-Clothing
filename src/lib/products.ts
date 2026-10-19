@@ -26,9 +26,37 @@ export const PHOTO_SIZE = 2000;
 export const SIZES = ["XS", "S", "M", "L", "XL", "XXL"] as const;
 export type Size = (typeof SIZES)[number];
 
-/** "Type" on the Wix product page. */
-export const FITS = ["Regular", "Oversized"] as const;
+/**
+ * Every garment type the shop has words for. NOT a menu — this is the
+ * vocabulary, and each product says which of these it is via `fits`.
+ *
+ * Shown to the customer as "Type", and it names the GARMENT, not just how
+ * loose it is. Printing "Oversized" on a hoodie, a ringer and a waffle knit
+ * told nobody anything — every one of them is oversized, so the word did no
+ * work. Each value below is lifted from that product's own spec sheet.
+ *
+ * "Regular" is kept only because orders placed before 2026-10-19 recorded it.
+ * Nothing is sold as Regular any more.
+ *
+ * It used to be the menu, rendered identically on all 37 products, which meant
+ * a boxy tee and a hoodie both offered "Regular / Oversized" and a customer
+ * could order a boxy shirt as oversized. Per-product since 2026-10-19 at the
+ * owner's direction.
+ */
+export const FITS = [
+  "Regular",
+  "Oversized",
+  "Boxy Fit",
+  "Oversized Waffle",
+  "Boxy Waffle",
+  "Hoodie",
+  "Zip Hoodie",
+  "Ringer",
+] as const;
 export type Fit = (typeof FITS)[number];
+
+/** Fallback for a product that forgot to declare one. */
+export const DEFAULT_FITS: readonly Fit[] = ["Oversized"];
 
 /**
  * The default spec sheet. Products may override it with their own `specs`.
@@ -39,7 +67,7 @@ export type Fit = (typeof FITS)[number];
  * Read specs via `specsFor(product)`, never by importing this directly.
  */
 export const SPECS = [
-  "Oversized and regular fit available",
+  "Oversized",
   "Unisex",
   "Round neck",
   "220 GSM",
@@ -128,7 +156,7 @@ export const SPECS_240_BOXY = [
   "Boxy fit",
   "Unisex",
   "Round neck",
-  "240 GSM (premium quality)",
+  "240 GSM (good quality)",
   "Easy wash",
   "100% pure cotton",
   "Premium printing",
@@ -136,10 +164,10 @@ export const SPECS_240_BOXY = [
 
 /** The heavier blank. Premium line. */
 export const SPECS_240 = [
-  "Oversized and regular fit available",
+  "Oversized",
   "Unisex",
   "Round neck",
-  "240 GSM (premium quality)",
+  "240 GSM (good quality)",
   "Easy wash",
   "100% pure cotton",
   "Premium printing",
@@ -248,6 +276,13 @@ export type Product = {
   cut?: Cut;
 
   /**
+   * The fits this garment is actually made in. One entry is the normal case —
+   * the buy box then states it instead of asking, because a choice with a
+   * single option is not a choice.
+   */
+  fits?: readonly Fit[];
+
+  /**
    * The image the catalogue card shows, when the hero graphic isn't the front.
    *
    * A grid answers one question — "which design do I want?" — so the card has
@@ -295,8 +330,185 @@ export type Product = {
   backlit?: string[];
 };
 
+/** The fits a product is made in. See FITS. */
+export const fitsFor = (p: Product): readonly Fit[] =>
+  p.fits && p.fits.length ? p.fits : DEFAULT_FITS;
+
 /** The spec sheet actually shown on a product page. */
 export const specsFor = (p: Product): readonly string[] => p.specs ?? SPECS;
+
+/* ── Size charts ──────────────────────────────────────────────────────────
+ *
+ * Transcribed from the supplier's own charts, 2026-10-19. The figures are
+ * theirs and are copied exactly, tolerance included; the only thing normalised
+ * is column order (chest, length, then the third measurement) so a customer
+ * can compare two garments without re-reading the headings.
+ *
+ * CHEST IS ROUND, not flat. The supplier states 40in for a size L ringer, and
+ * that blank measures 19.6in flat in the print room — the same garment halved.
+ * Saying "round" on the page is the difference between a customer ordering the
+ * right size and ordering two sizes too big.
+ *
+ * `height` is OURS, not the supplier's, and is the single thing most likely to
+ * stop a return: nobody knows their chest measurement, everybody knows their
+ * height. Each band is read off that chart's own length ladder, anchored on a
+ * 28in body suiting roughly 5'8"-5'10", then sanity-checked against the chest.
+ * It is guidance and the page says so.
+ */
+
+export type SizeChart = {
+  /** What the supplier calls this garment. */
+  name: string;
+  /** Headings after the size and height columns. */
+  columns: readonly string[];
+  /** Size, the height band it suits, then one figure per column. A chart
+   *  lists only the sizes the supplier actually cuts, never all of SIZES. */
+  rows: readonly (readonly [Size, string, ...number[]])[];
+  /** The supplier's own stated tolerance. */
+  tolerance: string;
+  /** How this garment runs, in one line, because the ladders differ a lot. */
+  note: string;
+};
+
+export const SIZE_CHARTS = {
+  "oversized-tee": {
+    name: "Oversized Tee",
+    columns: ["Chest (round)", "Length", "Sleeve"],
+    rows: [
+      ["S", `5'2" – 5'4"`, 41, 26, 10],
+      ["M", `5'5" – 5'7"`, 43, 27, 10.25],
+      ["L", `5'8" – 5'10"`, 45, 28, 10.5],
+      ["XL", `5'11" – 6'1"`, 47, 29, 10.5],
+      ["XXL", `6'1" and above`, 49, 29.5, 11],
+    ],
+    tolerance: "±1 inch",
+    note: "Drops off the shoulder by design. Broad build, or want it bigger still? Take one size up.",
+  },
+  "boxy-tee": {
+    name: "Boxy Fit Tee",
+    columns: ["Chest (round)", "Length"],
+    rows: [
+      ["S", `5'2" – 5'4"`, 46, 24],
+      ["M", `5'5" – 5'7"`, 48, 25],
+      ["L", `5'8" – 5'10"`, 50, 26],
+      ["XL", `5'11" – 6'1"`, 52, 27],
+      // Supplier writes "2XL" on this one chart and "XXL" on every other.
+      // Their label, not their measurement, so it is normalised here.
+      ["XXL", `6'1" and above`, 54, 28],
+    ],
+    tolerance: "±1 inch",
+    note: "Wider and 2in shorter than the oversized tee at every size — it sits high on purpose. Size up if you want it over the waistband.",
+  },
+  "ringer-tee": {
+    name: "Ringer Tee",
+    columns: ["Chest (round)", "Length"],
+    rows: [
+      ["S", `5'2" – 5'4"`, 36, 24],
+      ["M", `5'5" – 5'7"`, 38, 25],
+      ["L", `5'8" – 5'10"`, 40, 26],
+      ["XL", `5'11" and above`, 42, 27],
+    ],
+    tolerance: "±1 inch",
+    note: "The closest-cut thing we sell — a size L here is 5in narrower than a size L oversized tee. If you are between two, take the larger.",
+  },
+  "waffle-full-sleeve": {
+    name: "Waffle Oversized, Full Sleeve",
+    columns: ["Chest (round)", "Length", "Shoulder"],
+    rows: [
+      ["S", `5'2" – 5'4"`, 45, 24, 23],
+      ["M", `5'5" – 5'7"`, 47, 25, 24],
+      ["L", `5'8" – 5'10"`, 49, 26, 25],
+      ["XL", `5'11" – 6'1"`, 51, 27, 26],
+      ["XXL", `6'1" and above`, 53, 28, 27],
+    ],
+    tolerance: "±2 inches",
+    note: "Oversized through the body with a full sleeve. Note the wider tolerance on this one: a knit moves more than a jersey.",
+  },
+  "boxy-hoodie": {
+    name: "Boxy Hoodie",
+    columns: ["Chest (round)", "Length", "Shoulder"],
+    rows: [
+      ["S", `5'4" – 5'6"`, 53, 25.5, 25.5],
+      ["M", `5'7" – 5'9"`, 55, 26.5, 27],
+      ["L", `5'10" – 6'0"`, 56, 27.5, 27],
+      ["XL", `6'0" and above`, 58, 28, 28],
+    ],
+    tolerance: "±1 inch",
+    note: "Runs big — the small is already 53in round. If you normally take M in a tee, M here is roomier than you expect.",
+  },
+  "zip-hoodie": {
+    name: "Boxy Double-Zipped Hoodie",
+    columns: ["Chest (round)", "Length", "Shoulder"],
+    rows: [
+      ["S", `5'4" – 5'6"`, 53, 25.5, 25.5],
+      ["M", `5'7" – 5'9"`, 55, 26.5, 27],
+      ["L", `5'10" – 6'0"`, 56, 27.5, 27],
+      ["XL", `6'0" and above`, 58, 28, 28],
+    ],
+    tolerance: "±1 inch",
+    note: "Same body as the pullover hood, so take the same size. Runs big.",
+  },
+} as const satisfies Record<string, SizeChart>;
+
+export type SizeChartId = keyof typeof SIZE_CHARTS;
+
+/**
+ * Which chart belongs to which garment, keyed by the CONTENT of the spec sheet.
+ *
+ * It was keyed by the array itself at first, which worked on the server and
+ * silently failed in the browser: BuyBox is a client component, so `product`
+ * crosses the RSC boundary as JSON and `p.specs` arrives as a brand-new array.
+ * Identity cannot survive serialisation. The symptom was the nastiest kind —
+ * the size chart rendered correctly while the size BUTTONS still offered every
+ * size, because only one of the two ran on the server. Compare content.
+ */
+const CHART_BY_SPEC = new Map<string, SizeChartId>(
+  (
+    [
+      [SPECS, "oversized-tee"],
+      [SPECS_240, "oversized-tee"],
+      [SPECS_240_BOXY, "boxy-tee"],
+      [SPECS_180, "boxy-tee"],
+      [SPECS_220_RINGER, "ringer-tee"],
+      [SPECS_240_WAFFLE, "waffle-full-sleeve"],
+      [SPECS_360_HOODIE, "boxy-hoodie"],
+      [SPECS_360_ZIP, "zip-hoodie"],
+      // SPECS_240_WAFFLE_BOXY is deliberately absent: the supplier has sent no
+      // chart for the half-sleeve waffle, and the boxy tee's figures describe a
+      // different garment. Showing nothing beats showing numbers we invented.
+    ] as const
+  ).map(([specs, id]) => [specs.join("|"), id]),
+);
+
+/** The size chart for a product, or null when the supplier has not sent one. */
+export function sizeChartFor(p: Product): SizeChart | null {
+  const id = CHART_BY_SPEC.get(specsFor(p).join("|"));
+  return id ? SIZE_CHARTS[id] : null;
+}
+
+/** The sizes a chart actually lists, for checking against what we sell. */
+export const sizesInChart = (c: SizeChart): Size[] => c.rows.map((r) => r[0]);
+
+/**
+ * The sizes that can actually be sold for a product.
+ *
+ * SIZES is the shop's full vocabulary; this is what the supplier cuts. They are
+ * not the same list, and the gap was selling orders we could not fill: nothing
+ * in the range is made in XS, and the ringers, hoodies and zips stop at XL.
+ * Every one of the forty products offered XS to XXL, so a customer could pay
+ * for an XS hoodie that does not exist.
+ *
+ * This is the rule already written above SIZES — a size needs a row in the
+ * chart before it is offered — applied per garment, which is the only way to
+ * say it when a ringer and a boxy tee stop at different points.
+ *
+ * With no chart, nothing is known, so nothing is narrowed.
+ */
+export function sizesFor(p: Product): readonly Size[] {
+  const chart = sizeChartFor(p);
+  return chart ? sizesInChart(chart) : SIZES;
+}
+
 
 /** Every image for a product, in order — falls back to the single hero shot. */
 export const galleryFor = (p: Product): string[] =>
@@ -328,6 +540,7 @@ const RAW: Omit<Product, "image">[] = [
     badge: "EXCLUSIVE",
     description: `This isn't the first bridge. It isn't even the twentieth. Every time it happens he grabs the windscreen and screams the same word, and every time she reaches for her lipstick like she's done it a hundred times. The deal was struck decades ago: she doesn't die, she resets. He's the one who has to be in the car when it happens, every single time, front-row seat to his own worst night, on a loop he never agreed to ride twice. He remembers every bridge. She doesn't remember any of them. That's the part that actually breaks him.`,
     specs: SPECS_240,
+    fits: ["Oversized"],
     gallery: ["/products/fearless.png", "/products/fearless-front.png"],
   },
   {
@@ -339,6 +552,7 @@ const RAW: Omit<Product, "image">[] = [
     badge: "EXCLUSIVE",
     description: `Two kids prayed for a baby brother the way kids pray — loud, eyes shut, right before bed. The prayer never reached God. It landed on a different desk instead, one that doesn't usually get requests like this — from someone who doesn't usually get asked nicely for anything. He wasn't about to waste it. The next morning, a box marked FRAGILE sat on the step. The children carried it into the living hall together and opened it with care. Inside: red skin, small horns, a tail that wouldn't stop wagging. The kids cheered. Mother cried happy tears. Only the dog under the table knows what's actually living in this house now.`,
     specs: SPECS_240,
+    fits: ["Oversized"],
     gallery: ["/products/adopt-a-devil.png", "/products/adopt-a-devil-front.png"],
   },
   {
@@ -350,6 +564,7 @@ const RAW: Omit<Product, "image">[] = [
     badge: "EXCLUSIVE",
     description: `The house had been haunted for forty years before she ever touched the turntable. Three tracks in, whatever was stuck in that attic was already leaking out through the walls — her bassline didn't want it around. Death came down to stop her himself. Bad move. She dropped the needle on the one marked DEATH, and he went flying backward out of the room, scythe and all. Downstairs, nobody even paused. Best party that house had thrown in decades. Nobody there knows what just happened. She's too busy queuing the next track to notice either.`,
     specs: SPECS_240,
+    fits: ["Oversized"],
     gallery: ["/products/the-spin.png", "/products/the-spin-front.png"],
   },
   {
@@ -361,6 +576,7 @@ const RAW: Omit<Product, "image">[] = [
     badge: "EXCLUSIVE",
     description: `Two of them planned this job — one to rob, one to drive. Nobody planned on the devil getting bored in the passenger seat. By the time the alarm went off, the driver wasn't him anymore — car gone red, plate now DEVIL-1, horns through his hair, a grin that was never his. His partner sprinted out with two bags, sirens closing fast. Threw the first one in. Reached for the door with the second. That's when the engine roared and the car peeled off — and he froze, because the face waving goodbye wasn't his best friend's. It was the devil, grinning, laughing as it drove off with someone else's face. He always does this, when he's bored enough to ride shotgun.`,
     specs: SPECS_240,
+    fits: ["Oversized"],
     gallery: ["/products/no-honour.png", "/products/no-honour-front.png"],
   },
   {
@@ -372,6 +588,7 @@ const RAW: Omit<Product, "image">[] = [
     badge: "EXCLUSIVE",
     description: `Six years ago she sold her shadow in this exact market for one wish, no questions asked. Nobody told her a sold shadow doesn't just sit quiet on the wall behind you — it hunts. Every man who's crossed her since has turned up missing by morning, filed away as unsolved. Tonight it's the man with the briefcase's turn. He's walking to the cab right now, briefcase in hand, already counting his cut, feeling pretty good about the job. He doesn't feel it stretching taller behind him with every step he takes. He has no idea the deal was never with her.`,
     specs: SPECS_240,
+    fits: ["Oversized"],
     gallery: ["/products/chandni-chowk.png", "/products/chandni-chowk-front.png"],
   },
   {
@@ -383,6 +600,7 @@ const RAW: Omit<Product, "image">[] = [
     badge: "EXCLUSIVE",
     description: `Every constable on this beat knows his job and knows he's good at it — stand your post, follow the rules, wave down anything that's speeding. Tonight, from the other end of the road, a red Vespa comes tearing through — devil driving, angel riding pillion, Death in the back balancing a tray like he's done it a thousand times. They only ever ride out together on someone's last day. The constable spots them and blows his whistle, flagging them down without a second thought. He doesn't know it's for him. He'll radio it in as a routine stop. He won't remember writing the report. Nobody ever does when the three of them come for you smiling.`,
     specs: SPECS_240,
+    fits: ["Oversized"],
     gallery: ["/products/three-musketeers.png", "/products/three-musketeers-front.png"],
   },
   {
@@ -394,6 +612,7 @@ const RAW: Omit<Product, "image">[] = [
     badge: "EXCLUSIVE",
     description: `The safe held forty pieces of gold. She wanted one — the one with her grandmother's initials scratched into the clasp, taken from her family two generations ago and locked away like nobody would ever come looking for it. Three men had come to rob the shop that same night, masks on, guns out, certain the only thing between them and the vault was a woman who didn't matter. Wrong shop. Wrong woman. Wrong night. All three are on the floor now, out cold, and she never laid a finger on them. She didn't have to. Somebody else doesn't like it when men raise their hands to her. She just steps over them, takes back what's hers, and lets him handle the rest.`,
     specs: SPECS_240,
+    fits: ["Oversized"],
     gallery: ["/products/zaveri-bazaar.png", "/products/zaveri-bazaar-front.png"],
   },
   {
@@ -405,6 +624,7 @@ const RAW: Omit<Product, "image">[] = [
     badge: "EXCLUSIVE",
     description: `Same five faces, every full moon, hair let down, lipstick reapplied twice before midnight. Different names, different centuries, different corners of the world — but the same thirst, and the same price for staying this beautiful forever: a man, once every full moon, invited in but never invited back out. Call it a girls' night if you like. It's closer to a hunt dressed in silk and perfume, giggling behind painted nails at the one face too charmed to notice the room getting smaller. The pact only holds at five. Two years ago there were six — nobody says her name anymore, though the skull on the table still wears her ring, and it still matches her nails. Tonight there are five again. Laughing. Gorgeous. Patient. By the time the last candle burns to nothing, the pact might not hold.`,
     specs: SPECS_240,
+    fits: ["Oversized"],
     gallery: ["/products/sweet-as-sin.png", "/products/sweet-as-sin-front.png"],
   },
   {
@@ -416,6 +636,7 @@ const RAW: Omit<Product, "image">[] = [
     badge: "EXCLUSIVE",
     description: `The moths outside the Lonely Rest aren't moths. Regulars know that. They used to be guests — the ones who checked in, paid cash, no name needed, and never checked out. Same offer, thirteen years running. She read every word on the check-in slip before she signed it. Signed anyway. He's still trying to work out why she wasn't scared. She's still trying to work out why he looked scared of her. The moths already know how this ends. They always do.`,
     specs: SPECS_240,
+    fits: ["Oversized"],
     gallery: ["/products/vacancy.png", "/products/vacancy-front.png"],
   },
   {
@@ -427,6 +648,7 @@ const RAW: Omit<Product, "image">[] = [
     badge: "EXCLUSIVE",
     description: `Four kids started this circle. Three are left, and none of them can say what happened to the fourth — just an empty chair by the window that's never been moved back. Nobody remembers exactly when the skeleton started showing up either. He's just always been there, patient, quiet, easy to get used to. Every afternoon: same candle, same board, same question written in his own soft hand. हाँ or नहीं. He's never once said नहीं. The three of them think that means he always agrees. It might just mean he's still waiting for someone to ask the right question.`,
     specs: SPECS_240,
+    fits: ["Oversized"],
     gallery: ["/products/planchette.png", "/products/planchette-front.png"],
   },
 
@@ -469,6 +691,7 @@ A sunfade that starts soft at the shoulders and burns hot by the hem — one tee
 
 Wear it with black jeans. Count how many people look twice.`,
     specs: SPECS_240_BOXY,
+    fits: ["Boxy Fit"],
     gallery: [
       "/products/cut-pink-sunfade.png",
       "/products/cut-pink-sunfade-back.png",
@@ -488,6 +711,7 @@ A cloudy indigo wash that moves across the cloth like weather — no two hang ex
 
 Goes with everything. Looks like nothing else on the rail.`,
     specs: SPECS_240_BOXY,
+    fits: ["Boxy Fit"],
     gallery: ["/products/cut-denim.png", "/products/cut-denim-back.png"],
   },
   {
@@ -504,6 +728,7 @@ Flat white goes grey after a month. This sits warmer from the start, so it keeps
 
 The easiest thing here to wear. The hardest to put down.`,
     specs: SPECS_240_BOXY,
+    fits: ["Boxy Fit"],
     gallery: ["/products/cut-off-white.png", "/products/cut-off-white-back.png"],
   },
   {
@@ -520,6 +745,7 @@ Waffle knit in ivory — a grid you can feel, holding light and shadow right acr
 
 Quiet from a distance. Expensive up close.`,
     specs: SPECS_240_WAFFLE_BOXY,
+    fits: ["Boxy Waffle"],
     gallery: [
       "/products/cut-off-white-waffle.png",
       "/products/cut-off-white-waffle-back.png",
@@ -539,6 +765,7 @@ Deep chocolate with a worn-in finish, cut boxy and square, raw at the hem so it 
 
 Wear it with denim and watch it beat black every time.`,
     specs: SPECS_240_BOXY,
+    fits: ["Boxy Fit"],
     gallery: ["/products/cut-brown.png", "/products/cut-brown-back.png"],
   },
   {
@@ -555,6 +782,7 @@ A fade that runs the full length of the tee — dense black up top, lifting into
 
 Black, for people who are bored of black.`,
     specs: SPECS_240_BOXY,
+    fits: ["Boxy Fit"],
     gallery: [
       "/products/cut-black-ombre.png",
       "/products/cut-black-ombre-back.png",
@@ -574,6 +802,7 @@ No wash, no fade, no excuses — flat black, 240 GSM pure cotton, cut boxy and s
 
 Not the most exciting thing we make. Easily the most worn.`,
     specs: SPECS_240_BOXY,
+    fits: ["Boxy Fit"],
     gallery: ["/products/cut-black.png", "/products/cut-black-back.png"],
   },
   {
@@ -590,6 +819,7 @@ Waffle knit holds the light in a grid — close up it has depth, across a room i
 
 This is the one you reach for without thinking. Buy two.`,
     specs: SPECS_240_WAFFLE_BOXY,
+    fits: ["Boxy Waffle"],
     gallery: [
       "/products/cut-black-waffle.png",
       "/products/cut-black-waffle-back.png",
@@ -609,6 +839,7 @@ Graphite reads black across a room and charcoal up close, so it works in places 
 
 The one that gets asked about.`,
     specs: SPECS_180,
+    fits: ["Boxy Fit"],
     gallery: ["/products/cut-graphite.png", "/products/cut-graphite-back.png"],
   },
   {
@@ -625,6 +856,7 @@ The one that gets asked about.`,
 
 The one you will live in from April to September.`,
     specs: SPECS_180,
+    fits: ["Boxy Fit"],
     gallery: [
       "/products/cut-dusty-white.png",
       "/products/cut-dusty-white-back.png",
@@ -655,6 +887,7 @@ SWEETDEVIL across the chest in a red western block, and that is all it gives you
 
 Front for walking in. Back for walking away.`,
     specs: SPECS_220_RINGER,
+    fits: ["Ringer"],
     /* the full bronco is what sells it — lead the card with the back. */
     card: "/products/ring-rodeo-back.png",
     gallery: ["/products/ring-rodeo.png", "/products/ring-rodeo-back.png"],
@@ -673,6 +906,7 @@ Ringer trim at the collar and both cuffs, deep maroon against a warm cream body 
 
 Under nine hundred rupees. Looks like it has no business being.`,
     specs: SPECS_220_RINGER,
+    fits: ["Ringer"],
     gallery: ["/products/ring-offwhite.png", "/products/ring-offwhite-back.png"],
   },
   {
@@ -689,6 +923,7 @@ The ringer flipped — a mousse-brown body with cream at the collar and the cuff
 
 Quietly the best-looking thing in the range.`,
     specs: SPECS_220_RINGER,
+    fits: ["Ringer"],
     gallery: ["/products/ring-mousse.png", "/products/ring-mousse-back.png"],
   },
   {
@@ -705,6 +940,7 @@ Clean white body, soft blue at the collar and both cuffs, script to match — th
 
 Summer in one tee. No effort required.`,
     specs: SPECS_220_RINGER,
+    fits: ["Ringer"],
     gallery: ["/products/ring-sky-blue.png", "/products/ring-sky-blue-back.png"],
   },
 
@@ -731,6 +967,7 @@ A waffle knit that fades from soft pink at the shoulder down to hot pink at the 
 
 Most people will not have the nerve. You will.`,
     specs: SPECS_240_WAFFLE,
+    fits: ["Oversized Waffle"],
     gallery: ["/products/win-waffle-pink.png", "/products/win-waffle-pink-back.png"],
   },
   {
@@ -748,6 +985,7 @@ Deep indigo through the shoulders, lifting into a worn lighter blue below — th
 
 Winter, without wearing black again.`,
     specs: SPECS_240_WAFFLE,
+    fits: ["Oversized Waffle"],
     gallery: ["/products/win-waffle-blue.png", "/products/win-waffle-blue-back.png"],
   },
   {
@@ -765,6 +1003,7 @@ Winter, without wearing black again.`,
 
 Anyone can wear black. This one takes nerve.`,
     specs: SPECS_360_HOODIE,
+    fits: ["Hoodie"],
     gallery: ["/products/win-hoodie-cream.png", "/products/win-hoodie-cream-back.png"],
   },
   {
@@ -782,6 +1021,7 @@ Anyone can wear black. This one takes nerve.`,
 
 Buy it once. Wear it for years.`,
     specs: SPECS_360_HOODIE,
+    fits: ["Hoodie"],
     gallery: ["/products/win-hoodie-black.png", "/products/win-hoodie-black-back.png"],
   },
   {
@@ -799,6 +1039,7 @@ Buy it once. Wear it for years.`,
 
 The dearest thing we make. It earns it.`,
     specs: SPECS_360_ZIP,
+    fits: ["Zip Hoodie"],
     gallery: ["/products/win-zip-grey.png", "/products/win-zip-grey-back.png"],
   },
   {
@@ -816,6 +1057,7 @@ Open it from the bottom and it wears like a bomber; close it up and it is a hood
 
 The most versatile thing we make, and it looks like nothing else.`,
     specs: SPECS_360_ZIP,
+    fits: ["Zip Hoodie"],
     gallery: ["/products/win-zip-black.png", "/products/win-zip-black-back.png"],
   },
   {
@@ -833,6 +1075,7 @@ Charcoal grey broken up by a wash that runs light and dark across the whole garm
 
 Looks like you have had it ten years. You have had it since Tuesday.`,
     specs: SPECS_240_WAFFLE,
+    fits: ["Oversized Waffle"],
     gallery: ["/products/win-waffle-acid.png", "/products/win-waffle-acid-back.png"],
   },
   {
@@ -853,6 +1096,7 @@ A hammer wash that tears pale lightning straight down a black waffle knit — bl
 
 The one nobody else will be wearing. Not even in your size.`,
     specs: SPECS_240_WAFFLE,
+    fits: ["Oversized Waffle"],
     gallery: ["/products/win-waffle-hammer.png", "/products/win-waffle-hammer-back.png"],
   },
 
@@ -886,6 +1130,7 @@ Red fedora, leopard suit, bone where a face should be — stood at a payphone on
 
 360 GSM heavy fleece, brushed soft inside, cut boxy and oversized. The loudest thing we have ever made.`,
     specs: SPECS_360_HOODIE,
+    fits: ["Hoodie"],
     /* bought for the back — show it on the card, not the blank front. */
     card: "/products/loud-ruthless-back.png",
     gallery: ["/products/loud-ruthless-back.png", "/products/loud-ruthless.png"],
@@ -905,6 +1150,7 @@ Behind the green armchair, arms spread and claws out, something red and grinning
 
 Printed full width across the back of a 360 GSM hood. Heavy fleece, brushed soft inside, boxy and oversized. Sweet, right up until you read it twice.`,
     specs: SPECS_360_HOODIE,
+    fits: ["Hoodie"],
     /* bought for the back — show it on the card, not the blank front. */
     card: "/products/loud-sweet-dreams-back.png",
     gallery: ["/products/loud-sweet-dreams-back.png", "/products/loud-sweet-dreams.png"],
@@ -924,6 +1170,7 @@ No illustration, no frame, no border — just DEVIL HAS YOUR BACK thrown across 
 
 360 GSM heavy fleece, brushed soft inside, boxy oversized cut. It reads like a promise, because it is one.`,
     specs: SPECS_360_HOODIE,
+    fits: ["Hoodie"],
     /* bought for the back — show it on the card, not the blank front. */
     card: "/products/loud-devil-back-back.png",
     gallery: ["/products/loud-devil-back-back.png", "/products/loud-devil-back.png"],
@@ -943,6 +1190,7 @@ SWEET DEVIL STUDIO in a fat red bubble script with a blue outline, yellow starbu
 
 Full back of a 360 GSM hood. Heavy fleece, brushed soft inside, boxy and oversized. Wear it when you want the room in a good mood.`,
     specs: SPECS_360_HOODIE,
+    fits: ["Hoodie"],
     /* bought for the back — show it on the card, not the blank front. */
     card: "/products/loud-sd-studio-back.png",
     gallery: ["/products/loud-sd-studio-back.png", "/products/loud-sd-studio.png"],
@@ -962,6 +1210,7 @@ A small devil sat in the flames with a trident in his hand, ringed by SWEET AS D
 
 Full back of a 360 GSM hood. Heavy fleece, brushed soft inside, boxy and oversized. The calmest of the five, and the one people ask about.`,
     specs: SPECS_360_HOODIE,
+    fits: ["Hoodie"],
     /* bought for the back — show it on the card, not the blank front. */
     card: "/products/loud-sinners-club-back.png",
     gallery: ["/products/loud-sinners-club-back.png", "/products/loud-sinners-club.png"],

@@ -195,7 +195,7 @@ export default async function OrderPage({
               <Readout label="order" value={order.id} />
               <Readout label="status" value={order.status} hot={paid} />
               <Readout label="shipping" value="free, all india" />
-              <Readout label="delivery" value="3–7 business days" />
+              <Readout label="delivery" value="within 7 business days" />
 
               <p className="text-bone-dim prose-body mt-5 text-[0.92rem]">
                 {POLICIES.shipping.split(". ")[0]}. We&apos;ll email tracking as

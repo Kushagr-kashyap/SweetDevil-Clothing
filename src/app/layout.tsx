@@ -46,13 +46,40 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://sweetdevil.in"),
   title: "Sweet Devil — Unleash your inner devil",
   description:
-    "Oversized graphic tees for the ones who run a little hotter. Devil's Club comic covers, the Minimalist wordmark line, winter knits and one-off custom designs. Made in India.",
+    "Original graphic tees, drawn by us and never reprinted. Devil's Club comic covers, the Minimalist wordmark line and winter knits. Made in New Delhi.",
   openGraph: {
     title: "Sweet Devil — Unleash your inner devil",
     description:
-      "Oversized graphic tees for the ones who run a little hotter. Limited drops, loud designs.",
+      "Original graphic tees, drawn by us and never reprinted. Made in New Delhi.",
     type: "website",
     locale: "en_IN",
+    url: "https://sweetdevil.in",
+    siteName: "Sweet Devil",
+    /**
+     * The card WhatsApp, Instagram and X draw when the home page is shared.
+     *
+     * Product pages already had one — their own photograph — but the home page
+     * had none, so the single most-shared link in the business, the one in the
+     * Instagram bio, previewed as a grey box with text. People tap pictures.
+     *
+     * 1200x630 is the size every platform crops to. It carries three real
+     * garments on purpose: a mascot alone reads as a logo, not a shop.
+     */
+    images: [
+      {
+        url: "/brand/og.png",
+        width: 1200,
+        height: 630,
+        alt: "Sweet Devil — original graphic tees, drawn here and printed once",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sweet Devil — Unleash your inner devil",
+    description:
+      "Original graphic tees, drawn by us and never reprinted. Made in New Delhi.",
+    images: ["/brand/og.png"],
   },
 };
 

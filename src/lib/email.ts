@@ -215,7 +215,7 @@ export async function sendOrderConfirmation(order: OrderRow): Promise<boolean> {
         ${esc(order.city)}, ${esc(order.state)} ${esc(order.pincode)}
       </p>
       <p style="color:${C.boneDim};font-size:14px;line-height:1.7;margin:18px 0 0">
-        Processed in 1–3 business days, delivered in 3–7. Shipping is free across India.
+        Processed in 1–3 business days, delivered within 7. Shipping is free across India.
       </p>
     </td></tr>
 
@@ -277,7 +277,7 @@ export async function sendOrderConfirmation(order: OrderRow): Promise<boolean> {
     `  ${order.address_line}`,
     `  ${order.city}, ${order.state} ${order.pincode}`,
     ``,
-    `Processed in 1-3 business days, delivered in 3-7. Shipping is free`,
+    `Processed in 1-3 business days, delivered within 7. Shipping is free`,
     `across India.`,
     ``,
     `View your order: ${orderUrl}`,
