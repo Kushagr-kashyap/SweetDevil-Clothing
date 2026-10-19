@@ -1,4 +1,10 @@
-import { markOrderFailed, markOrderPaid } from "@/lib/orders";
+import { after } from "next/server";
+import { sendOrderConfirmation } from "@/lib/email";
+import {
+  getOrderByRazorpayOrderId,
+  markOrderFailed,
+  markOrderPaid,
+} from "@/lib/orders";
 import { verifyWebhookSignature } from "@/lib/razorpay";
 
 /**
@@ -77,6 +83,21 @@ export async function POST(request: Request) {
         razorpayOrderId,
         updated, // false = another path confirmed it first, which is fine
       });
+
+      // Only the path that actually flipped the row sends the email — same
+      // guard as confirm.ts. Both events we subscribe to (payment.captured and
+      // order.paid) land here for a single payment, so without this a customer
+      // would get two confirmations from the webhook alone.
+      //
+      // The row is re-read rather than threaded through markOrderPaid: this
+      // branch runs only once per order, so the extra query costs nothing worth
+      // reshaping an API for.
+      if (updated) {
+        const order = await getOrderByRazorpayOrderId(razorpayOrderId);
+        // A payment with no order of ours is a payment link, not a store
+        // order — see the ₹1 webhook test. Nothing to confirm to anyone.
+        if (order) after(() => sendOrderConfirmation(order));
+      }
       break;
     }
     case "payment.failed": {

@@ -1,5 +1,6 @@
 import "server-only";
 import { after } from "next/server";
+import { sendOrderConfirmation } from "./email";
 import { getOrderByRazorpayOrderId, markOrderFailed, markOrderPaid } from "./orders";
 import { verifyPaymentSignature } from "./razorpay";
 import { markRewardUsed } from "./rewards";
@@ -61,14 +62,22 @@ export async function confirmPayment(input: {
     razorpayPaymentId: input.razorpayPaymentId,
   });
 
+  // Exactly-once, for free: the UPDATE behind markOrderPaid matches only a row
+  // still pending with no payment id, so of the three racing paths precisely
+  // one sees `true`. Gating the email here is what stops a customer getting
+  // three copies of the same confirmation.
+  //
+  // after() runs it once the response is already sent — Resend's latency must
+  // not sit between a customer paying and their confirmation page appearing.
   if (updated) {
+    after(() => sendOrderConfirmation(order));
+
     // Spend the game reward HERE, not when the order was created. An abandoned
     // checkout must leave the code still winnable — burning it at order
     // creation would take the discount away from someone who never paid.
     //
-    // Gated on `updated`: the UPDATE behind markOrderPaid matches only a row
-    // still pending with no payment id, so only the call that actually flips
-    // the row spends the code.
+    // Gated on the same `updated` flag as the email, so of the three racing
+    // confirmation paths exactly one spends it.
     if (order.reward_code) {
       const code = order.reward_code;
       after(async () => {

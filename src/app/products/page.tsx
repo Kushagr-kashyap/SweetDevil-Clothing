@@ -9,7 +9,7 @@ import { products } from "@/lib/products";
 export const metadata: Metadata = {
   title: "All Products — Sweet Devil",
   description:
-    "Every Sweet Devil tee in one place: Devil's Club, Brainrot Club and numbered Limited Edition drops. Oversized fits, ₹699 upward, made in India.",
+    "Every Sweet Devil tee in one place: Devil's Club comic covers and the Minimalist wordmark line. Oversized and boxy fits, heavyweight cotton, made in India.",
 };
 
 export default function ProductsPage() {
@@ -21,7 +21,7 @@ export default function ProductsPage() {
         code="CAT"
         meta={`${String(shopCount).padStart(2, "0")} styles in stock`}
         lines={["All", "Products"]}
-        blurb="Every tee we print, across all three clubs. Oversized fits, heavyweight cotton, small runs. Nothing here gets restocked once it's gone."
+        blurb="Every tee we print. Oversized and boxy fits, heavyweight cotton, small runs. Nothing here gets restocked once it's gone."
       />
 
       <Marquee text="Limited drops" duration={26} outline />

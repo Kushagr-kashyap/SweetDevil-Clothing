@@ -3,17 +3,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import BuyBox from "@/components/BuyBox";
+import Lightbox from "@/components/Lightbox";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { Ticks } from "@/components/hud";
-import CharacterPanel from "@/components/CharacterPanel";
-import { characterById } from "@/lib/characters";
 import {
   bySlug,
   collections,
   discount,
   galleryFor,
   inr,
+  PHOTO_SIZE,
   products,
   specsFor,
 } from "@/lib/products";
@@ -52,7 +52,6 @@ export default async function ProductPage({ params }: Params) {
     .filter((r) => r.collection === p.collection && r.slug !== p.slug)
     .slice(0, 4);
 
-  const character = p.character ? characterById(p.character) : undefined;
   // Size chart is appended rather than listed in `gallery` so it can never be
   // mistaken for the hero shot or used as the OG image.
   const gallery = p.sizeChart ? [...galleryFor(p), p.sizeChart] : galleryFor(p);
@@ -86,6 +85,7 @@ export default async function ProductPage({ params }: Params) {
             className="rise lg:sticky lg:top-24 lg:self-start"
             style={{ ["--d" as string]: "100ms" }}
           >
+            <Lightbox>
             <div
               className="chassis cut-4 relative overflow-hidden"
               style={{ ["--cut" as string]: "20px" }}
@@ -93,6 +93,10 @@ export default async function ProductPage({ params }: Params) {
               <ul className="flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain">
                 {gallery.map((src, i) => {
                   const backlit = p.backlit?.includes(src) ?? false;
+                  const alt =
+                    i === gallery.length - 1 && p.sizeChart
+                      ? `${p.name} size chart, measurements in inches`
+                      : `${p.name} — view ${i + 1} of ${gallery.length}`;
                   return (
                   <li
                     key={src}
@@ -125,19 +129,25 @@ export default async function ProductPage({ params }: Params) {
                         }}
                       />
                     )}
-                    <Image
-                      src={src}
-                      alt={
-                        i === gallery.length - 1 && p.sizeChart
-                          ? `${p.name} size chart, measurements in inches`
-                          : `${p.name} — view ${i + 1} of ${gallery.length}`
-                      }
-                      width={1000}
-                      height={1000}
-                      priority={i === 0}
-                      sizes="(max-width: 1024px) 92vw, 46vw"
-                      className="relative h-full w-full object-contain"
-                    />
+                    {/* A real link to the file, upgraded by <Lightbox> into an
+                        in-page viewer. With scripting dead this still opens the
+                        photo and the phone zooms it natively. */}
+                    <a
+                      href={src}
+                      data-zoom
+                      data-alt={alt}
+                      className="relative block h-full w-full cursor-zoom-in"
+                    >
+                      <Image
+                        src={src}
+                        alt={alt}
+                        width={PHOTO_SIZE}
+                        height={PHOTO_SIZE}
+                        priority={i === 0}
+                        sizes="(max-width: 1024px) 92vw, 46vw"
+                        className="relative h-full w-full object-contain"
+                      />
+                    </a>
 
                     {/* REMOVED: a `mix-blend-screen` bleed used to sit here, on
                         top of the image, to lift the backdrop around the
@@ -166,6 +176,7 @@ export default async function ProductPage({ params }: Params) {
                 </span>
               )}
             </div>
+            </Lightbox>
 
             {/* Fit reference, directly under the photos it describes — this is
                 where someone is judging "will it look like that on me?", and
@@ -220,19 +231,6 @@ export default async function ProductPage({ params }: Params) {
                   ))}
                 </ul>
               </Panel>
-
-              {/* Between the spec sheet and Shipping, at the owner's direction —
-                  and it's the right place: someone reading this far either wants
-                  a reason to buy or is checking delivery.
-
-                  Uses the same Panel as its neighbours rather than a bespoke
-                  container. A hand-rolled version drifted on chamfer, padding
-                  and heading weight and visibly broke the rhythm of the stack. */}
-              {character && (
-                <Panel title="About character">
-                  <CharacterPanel character={character} />
-                </Panel>
-              )}
 
               <Panel title="Shipping">
                 <p className="text-bone-dim prose-body text-[0.95rem]">

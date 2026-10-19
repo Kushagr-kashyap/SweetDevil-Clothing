@@ -3,7 +3,7 @@ import Link from "next/link";
 import FireBackdrop from "./FireBackdrop";
 import Glitch from "./Glitch";
 import { Ticks } from "./hud";
-import { cardImage, products } from "@/lib/products";
+import { cardImage, products, type Product } from "@/lib/products";
 
 /**
  * The entrance is a pure CSS animation with `animation-fill-mode: both`, not a
@@ -13,13 +13,35 @@ import { cardImage, products } from "@/lib/products";
 const at = (ms: number, extra: Record<string, string> = {}) =>
   ({ ["--d"]: `${ms}ms`, ...extra }) as React.CSSProperties;
 
-/** Four tees pulled forward as the "loadout" strip beneath the hero. */
-const LOADOUT = [
+/**
+ * Four tees pulled forward as the "loadout" strip beneath the hero.
+ *
+ * PICKS is editorial — the owner's choice of what leads the page. It is
+ * RESOLVED, never asserted: this list used to end in `find(...)!`, and on
+ * 2026-09-21, when the range was replaced, all four slugs stopped existing at
+ * once. The non-null assertion turned that into `undefined.slug` and took the
+ * whole home page down with a 500 — a retired tee should cost a thumbnail, not
+ * the front door.
+ *
+ * Anything missing is dropped and the strip is topped up from the range, so it
+ * survives the next range change too. Custom-design tiers are excluded: they
+ * are a service, not a tee, and the strip is a shelf.
+ */
+const PICKS = [
   "killswitch-engage",
   "satan-s-child",
   "bound-2",
   "professional-tweeter",
-].map((s) => products.find((p) => p.slug === s)!);
+];
+
+const isTee = (p: Product) => p.collection !== "custom";
+
+const LOADOUT: Product[] = [
+  ...PICKS.map((s) => products.find((p) => p.slug === s)).filter(
+    (p): p is Product => p !== undefined,
+  ),
+  ...products.filter((p) => isTee(p) && !PICKS.includes(p.slug)),
+].slice(0, 4);
 
 export default function Hero() {
   return (
@@ -82,6 +104,9 @@ export default function Hero() {
       </div>
 
       {/* ── loadout strip ── */}
+      {/* Four across, so anything short of four is hidden rather than shown
+          ragged — an empty column reads as a failed image, not as a choice. */}
+      {LOADOUT.length === 4 && (
       <div style={at(380)} className="rise mt-4 grid grid-cols-4 gap-2 md:gap-3">
         {LOADOUT.map((p) => (
           <Link
@@ -103,6 +128,7 @@ export default function Hero() {
           </Link>
         ))}
       </div>
+      )}
 
       {/* ── CTA ── */}
       <Link

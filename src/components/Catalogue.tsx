@@ -1,44 +1,48 @@
 "use client";
 
-import Image from "next/image";
+import Link from "next/link";
 import { useSmooothy } from "@/hooks/useSmooothy";
 import ProductCard from "./ProductCard";
-import Reveal from "./Reveal";
-import { Readout, SectionHead, Ticks } from "./hud";
-import { cardImage, discount, inr, productsIn, sku } from "@/lib/products";
+import { SectionHead } from "./hud";
+import { productsByCut, productsIn, winterByLine, type Product } from "@/lib/products";
 
-const buyUrl = (slug: string) => `/products/${slug}`;
-
-/* ── Devil's Club: a draggable rail. Seven tees, kinetic, the flagship. ─────── */
-
-function DevilsClub() {
-  const items = productsIn("devils-club");
+/**
+ * A draggable rail of cards.
+ *
+ * Extracted so every section can have one. Minimalist renders a rail per
+ * garment type and the number of those is data, not code — hooks cannot be
+ * called in a loop, so each rail has to be its own component instance with its
+ * own useSmooothy.
+ *
+ * `cardClass` carries the width because that is the one thing that differs
+ * between rails: Devil's Club shows one big card at a time because the artwork
+ * is the product, while Minimalist shows two narrow ones because the choice
+ * there is a colour and colours are judged side by side.
+ */
+function Rail({
+  items,
+  cardClass,
+  sizes,
+  label,
+}: {
+  items: Product[];
+  cardClass: string;
+  sizes?: string;
+  label: string;
+}) {
   // Bounded, not infinite: wrapping clones leave a sliver of the last card
   // poking through the left inset, which reads as a rendering artefact.
-  const { ref, slider } = useSmooothy({
-    infinite: false,
-    snap: true,
-    lerpFactor: 0.28,
-  });
+  const { ref, slider } = useSmooothy({ infinite: false, snap: true, lerpFactor: 0.28 });
 
   return (
-    <section id="devils-club" className="py-14 md:py-20">
-      <div className="px-[max(1.25rem,5vw)]">
-        <SectionHead
-          code="DVL"
-          title="Devil's Club"
-          blurb="Band-grade graphics for the gloriously unholy."
-          count={items.length}
-        />
-      </div>
-
+    <>
       <div
         ref={ref}
         className="flex w-full cursor-grab overflow-x-hidden px-[max(1.25rem,5vw)] active:cursor-grabbing"
       >
         {items.map((p) => (
-          <div key={p.slug} className="w-[70vw] shrink-0 pr-3 sm:w-[46vw] lg:w-[27vw]">
-            <ProductCard product={p} />
+          <div key={p.slug} className={`${cardClass} shrink-0 pr-3`}>
+            <ProductCard product={p} sizes={sizes} />
           </div>
         ))}
       </div>
@@ -47,7 +51,7 @@ function DevilsClub() {
         <p className="readout text-bone-faint">drag to browse</p>
         <div className="flex gap-2">
           <button
-            aria-label="Previous product"
+            aria-label={`Previous ${label}`}
             onClick={() => slider?.goToPrev()}
             className="chassis cut text-bone-dim hover:text-ember grid h-10 w-10 place-items-center transition-colors"
             style={{ ["--cut" as string]: "8px" }}
@@ -55,7 +59,7 @@ function DevilsClub() {
             ←
           </button>
           <button
-            aria-label="Next product"
+            aria-label={`Next ${label}`}
             onClick={() => slider?.goToNext()}
             className="chassis cut text-bone-dim hover:text-ember grid h-10 w-10 place-items-center transition-colors"
             style={{ ["--cut" as string]: "8px" }}
@@ -64,102 +68,161 @@ function DevilsClub() {
           </button>
         </div>
       </div>
-    </section>
+    </>
   );
 }
 
-/* ── Brainrot Club: a tight two-up grid. Deliberately a different rhythm. ──── */
+/* Card widths. Devil's Club keeps the large card at the owner's direction; the
+   narrow one matches the 2 / 3 / 5-up grid Minimalist used before it became a
+   rail, so the cards are the size they already were. */
+const WIDE = "w-[70vw] sm:w-[46vw] lg:w-[27vw]";
+const WIDE_SIZES = "(max-width: 640px) 70vw, (max-width: 1024px) 46vw, 27vw";
+const NARROW = "w-[45vw] md:w-[31vw] lg:w-[19vw]";
+const NARROW_SIZES = "(max-width: 768px) 45vw, (max-width: 1024px) 31vw, 19vw";
 
-function BrainrotClub() {
-  const items = productsIn("brainrot-club");
+/** Heading that opens the group's own page. */
+function GroupLink({ id, children }: { id: string; children: React.ReactNode }) {
   return (
-    <section id="brainrot-club" className="px-[max(1.25rem,5vw)] py-14 md:py-20">
-      <SectionHead
-        code="BRN"
-        title="Brainrot Club"
-        blurb="Terminally online. Proudly unserious."
-        count={items.length}
-      />
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {items.map((p, i) => (
-          <Reveal key={`${p.slug}-${i}`} delay={i * 60}>
-            {/* two-up on phones, four-up on desktop — much narrower than the rail */}
-            <ProductCard product={p} sizes="(max-width: 1024px) 45vw, 23vw" />
-          </Reveal>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-/* ── Limited Edition: one item, given the whole stage. ─────────────────────── */
-
-function LimitedEdition() {
-  const p = productsIn("limited-edition")[0];
-  if (!p) return null;
-
-  return (
-    <section id="limited-edition" className="px-[max(1.25rem,5vw)] py-14 md:py-20">
-      <SectionHead
-        code="LTD"
-        title="Limited Edition"
-        blurb="Numbered drops. Once they're gone, they're gone."
-        count={1}
-      />
-
-      <Reveal
-        as="a"
-        href={buyUrl(p.slug)}
-        className="chassis chassis-hot cut-4 group relative block overflow-hidden md:grid md:grid-cols-[1.1fr_1fr] md:items-center"
-        style={{ ["--cut" as string]: "22px" }}
+    <Link href={`/collections/${id}`} className="group/h inline-flex items-baseline gap-2">
+      {children}
+      <span
+        aria-hidden
+        className="text-bone-faint group-hover/h:text-ember transition-all duration-300 group-hover/h:translate-x-0.5"
       >
-        <span className="bg-panel relative block aspect-square overflow-hidden">
-          <span
-            aria-hidden
-            className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,var(--color-panel-hi),var(--color-panel)_72%)]"
+        →
+      </span>
+    </Link>
+  );
+}
+
+/* ── Devil's Club: a draggable rail. The flagship, on the big card. ────────── */
+
+function DevilsClub() {
+  const items = productsIn("devils-club");
+  if (!items.length) return null;
+
+  return (
+    <section id="devils-club" className="py-14 md:py-20">
+      <div className="px-[max(1.25rem,5vw)]">
+        <GroupLink id="devils-club">
+          <SectionHead
+            code="DVL"
+            title="Devil's Club"
+            blurb="Band-grade graphics for the gloriously unholy."
+            count={items.length}
           />
-          <Image
-            src={cardImage(p)}
-            alt={p.name}
-            width={1000}
-            height={1000}
-            sizes="(max-width: 768px) 90vw, 45vw"
-            className="relative h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-105"
+        </GroupLink>
+      </div>
+      <Rail items={items} cardClass={WIDE} sizes={WIDE_SIZES} label="product" />
+    </section>
+  );
+}
+
+/* ── Minimalist: one wordmark, a rail per garment type. ───────────────────── */
+
+function Minimalist() {
+  const groups = productsByCut("minimalist");
+  if (!groups.length) return null;
+  const total = groups.reduce((n, g) => n + g.items.length, 0);
+
+  return (
+    <section id="minimalist" className="py-14 md:py-20">
+      <div className="px-[max(1.25rem,5vw)]">
+        <GroupLink id="minimalist">
+          <SectionHead
+            code="MIN"
+            title="Minimalist"
+            blurb="The wordmark, clean. Pick your cut and your colour."
+            count={total}
           />
-          <Ticks />
-        </span>
+        </GroupLink>
+      </div>
 
-        <span className="block p-5 md:p-8">
-          <span className="readout text-ember">limited — numbered run</span>
-          <span className="display text-bone mt-3 block text-[length:var(--step-3)]">
-            {p.name}
-          </span>
-          <span className="mt-4 flex items-baseline gap-3">
-            <span className="text-bone text-2xl font-semibold">{inr(p.price)}</span>
-            <span className="text-bone-faint line-through">{inr(p.mrp)}</span>
-            <span className="readout text-flare">−{discount(p)}%</span>
-          </span>
+      {/*
+        One rail per garment type, not one grid for everything.
 
-          <span className="mt-6 block">
-            <Readout label="sku" value={sku(p)} />
-            <Readout label="run" value="numbered" hot />
-            <Readout label="restock" value="never" hot />
-          </span>
+        Devil's Club groups by design because the artwork is what differs there.
+        Here the wordmark is constant, so the garment IS the choice — and
+        someone deciding between a boxy tee and a waffle full-sleeve is making a
+        different decision from someone picking a colour. A flat run of cards
+        asks them to do both jobs at once.
 
-          <span
-            className="cut bg-bone text-void label mt-6 flex items-center justify-center gap-2 py-3.5"
-            style={{ ["--cut" as string]: "12px" }}
-          >
-            Claim yours
-            <span
-              aria-hidden
-              className="transition-transform duration-300 group-hover:translate-x-1"
-            >
-              →
-            </span>
-          </span>
-        </span>
-      </Reveal>
+        Groups come from CUTS and only render when they hold stock, so a garment
+        type with nothing in it stays invisible until it has something.
+      */}
+      {groups.map(({ cut, items }) => (
+        <div key={cut.id} id={cut.id} className="mt-12 first:mt-0">
+          <div className="px-[max(1.25rem,5vw)]">
+            <div className="border-line/60 mb-4 flex items-baseline gap-3 border-b pb-2">
+              <GroupLink id={cut.id}>
+                <h3 className="display text-bone hover:text-ember text-[1.1rem] leading-none transition-colors">
+                  {cut.name}
+                </h3>
+              </GroupLink>
+              <span className="bg-line/60 h-px flex-1" />
+              <span className="readout text-bone-faint">
+                {String(items.length).padStart(2, "0")}
+              </span>
+            </div>
+          </div>
+          <Rail items={items} cardClass={NARROW} sizes={NARROW_SIZES} label={cut.name} />
+        </div>
+      ))}
+    </section>
+  );
+}
+
+/* ── Winter: hoodies and heavy knits. Its own section, not a cut. ─────────── */
+
+function Winter() {
+  const groups = winterByLine();
+  if (!groups.length) return null;
+  const total = groups.reduce((n, g) => n + g.items.length, 0);
+
+  return (
+    <section id="winter" className="py-14 md:py-20">
+      <div className="px-[max(1.25rem,5vw)]">
+        <GroupLink id="winter">
+          <SectionHead
+            code="WTR"
+            title="Winter Collection"
+            blurb="Hoodies and heavy knits for when it finally turns."
+            count={total}
+          />
+        </GroupLink>
+      </div>
+
+      {/*
+        Two lines, Loud first.
+
+        Same 360 GSM blank underneath, but a full illustrated back and a small
+        wordmark are not the same product — different work, different price.
+        Loud leads because it is the stronger piece and the dearer one, and
+        someone opening Winter should meet Ruthless before a plain script.
+
+        Like the Minimalist cuts, a line with no stock simply does not render.
+      */}
+      {groups.map(({ line, items }) => (
+        <div key={line.id} id={line.id} className="mt-12 first:mt-0">
+          <div className="px-[max(1.25rem,5vw)]">
+            <div className="border-line/60 mb-4 flex items-baseline gap-3 border-b pb-2">
+              <GroupLink id={line.id}>
+                <h3 className="display text-bone hover:text-ember text-[1.1rem] leading-none transition-colors">
+                  {line.name}
+                </h3>
+              </GroupLink>
+              <span className="text-bone-faint hidden text-[0.8rem] sm:block">
+                {line.blurb}
+              </span>
+              <span className="bg-line/60 h-px flex-1" />
+              <span className="readout text-bone-faint">
+                {String(items.length).padStart(2, "0")}
+              </span>
+            </div>
+          </div>
+          <Rail items={items} cardClass={NARROW} sizes={NARROW_SIZES} label={line.name} />
+        </div>
+      ))}
     </section>
   );
 }
@@ -168,8 +231,8 @@ export default function Catalogue() {
   return (
     <div id="catalogue">
       <DevilsClub />
-      <BrainrotClub />
-      <LimitedEdition />
+      <Minimalist />
+      <Winter />
     </div>
   );
 }

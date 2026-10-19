@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { cardImage, discount, inr, shortCode, type Product } from "@/lib/products";
+import { cardImage, discount, inr, type Product } from "@/lib/products";
 
 export default function ProductCard({
   product: p,
@@ -66,12 +66,10 @@ export default function ProductCard({
           <span className="readout text-flare">−{discount(p)}%</span>
         </span>
 
-        {/* In the two-up grid the card is ~160px wide, where the code and the
-            action would both wrap. Drop the code there and keep the action whole. */}
-        <span className="border-line/60 mt-3 flex items-center justify-between border-t pt-2">
-          <span className="readout text-bone-faint hidden @min-[200px]:block">
-            {shortCode(p)}
-          </span>
+        {/* The generated DVL-#### code that sat on the left was removed at the
+            owner's request. It was a hash of the slug, not a stock number — it
+            looked like a catalogue reference while referring to nothing. */}
+        <span className="border-line/60 mt-3 flex items-center justify-end border-t pt-2">
           <span className="readout text-bone-dim group-hover:text-ember inline-flex items-center gap-1.5 whitespace-nowrap transition-colors">
             View
             <span

@@ -15,14 +15,21 @@ export const metadata: Metadata = {
     "Sweet Devil started with two best friends who couldn't find a t-shirt that met their standards. So they printed their own. Made in New Delhi.",
 };
 
-/** Verbatim from the live store's own description of each club. */
+/**
+ * One line per collection, shown on /about.
+ *
+ * The Devil's Club and Custom lines are verbatim from the live store. The
+ * Minimalist and Winter lines are NOT — they replaced Brainrot Club and
+ * Limited Edition on 2026-10-16 and have no live-store copy to transcribe, so
+ * they are drafts and the owner should rewrite them in his own voice.
+ */
 const CLUB_NOTES: Record<string, string> = {
   "devils-club":
     "The loud one. Band-grade artwork, heavy ink, the kind of print people stop you about at a gig.",
-  "brainrot-club":
-    "The joke one. Screenshots, memes and group-chat energy printed at full size, entirely without shame.",
-  "limited-edition":
-    "The rare one. Numbered runs that go once and never come back — no restocks, no second chances.",
+  minimalist:
+    "The quiet one. Just the wordmark, across every cut and colourway we make it in.",
+  winter:
+    "The warm one. Hoodies and heavy knits, built for the two months a year Delhi admits it is cold.",
   custom:
     "The personal one. You send the idea, our team draws it, and it gets printed exactly once.",
 };
